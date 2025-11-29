@@ -24,3 +24,57 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+.text-gradient-courtly {
+  /* Set gradien dari hijau ke biru */
+  background: linear-gradient(to right, #66c05a 0%, #2ca3c5 100%);
+
+  /* Klip gradien ke batas teks */
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  /* Jadikan warna teks transparan agar gradien terlihat */
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+/* Warna Gradien Courtly */
+:root {
+  --gradient-from: #66c05a;
+  --gradient-to: #2ca3c5;
+}
+
+/* 1. Tombol Masuk (OUTLINE GRADIENT + TEKS GRADIENT) */
+.btn-outline-gradient {
+  /* Trik Border Gradien */
+  border: 2px solid transparent;
+  background-image: linear-gradient(white, white),
+    linear-gradient(to right, var(--gradient-from), var(--gradient-to));
+  background-origin: border-box;
+  background-clip: padding-box, border-box; /* padding-box untuk content, border-box untuk border */
+
+  /* Trik Teks Gradien */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Gradien untuk teks harus didefinisikan lagi */
+  background-image: linear-gradient(
+    to right,
+    var(--gradient-from),
+    var(--gradient-to)
+  );
+
+  /* Pastikan elemen ini inline-block agar teks gradien berfungsi */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 2. Tombol Daftar (BACKGROUND GRADIENT SOLID) */
+.btn-solid-gradient {
+  background-image: linear-gradient(
+    to right,
+    var(--gradient-from),
+    var(--gradient-to)
+  );
+}
