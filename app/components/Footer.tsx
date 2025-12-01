@@ -4,19 +4,19 @@ import Link from "next/link";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white mt-12 pt-10 pb-4">
+    <footer className="bg-white text-black mt-12 md:px-18 md:py-10">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 border-b border-gray-700 pb-8">
           {/* Kolom 1: Logo & Deskripsi */}
           <div className="col-span-2 lg:col-span-2 pr-8">
             <h3 className="text-2xl font-bold text-green-500 mb-3">Courtly</h3>
-            <p className="text-sm text-gray-400 mb-4 max-w-sm">
+            <p className="text-sm text-black mb-4 max-w-sm">
               Sistem reservasi lapangan olahraga online terkemuka di Indonesia.
               Cari dan pesan lapangan Futsal, Basket, Badminton, dan lainnya
               dengan cepat dan mudah.
             </p>
             {/* Informasi Kontak Dasar */}
-            <div className="text-sm text-gray-400 space-y-1">
+            <div className="text-sm text-black space-y-1">
               <p>
                 Email:{" "}
                 <a
@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/about"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Tentang Kami
                 </Link>
@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/contact"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Hubungi Kami
                 </Link>
@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/rewards"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Rewards
                 </Link>
@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/faq"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   FAQ
                 </Link>
@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/karir"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Karir
                 </Link>
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/terms"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Syarat & Ketentuan
                 </Link>
@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Kebijakan Privasi
                 </Link>
@@ -105,7 +105,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/sitemap"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Peta Situs
                 </Link>
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/mitra"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Jadilah Mitra
                 </Link>
@@ -121,7 +121,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   href="/login"
-                  className="text-gray-400 hover:text-green-500 transition"
+                  className="text-black hover:text-green-500 transition"
                 >
                   Login Sistem
                 </Link>
@@ -138,7 +138,7 @@ const Footer: React.FC = () => {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-green-500 text-2xl"
+                className="text-black hover:text-green-500 text-2xl"
               >
                 {/* Ganti dengan ikon SVG/Font Awesome/Lucide */}
                 📸
@@ -147,7 +147,7 @@ const Footer: React.FC = () => {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-green-500 text-2xl"
+                className="text-black hover:text-green-500 text-2xl"
               >
                 📘
               </a>
@@ -155,7 +155,7 @@ const Footer: React.FC = () => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-green-500 text-2xl"
+                className="text-black hover:text-green-500 text-2xl"
               >
                 🐦
               </a>

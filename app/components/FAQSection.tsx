@@ -39,37 +39,37 @@ const FAQSection: React.FC = () => {
     {
       question: "Apa itu sistem reservasi lapangan online Courtly?",
       answer:
-        "Courtly adalah platform reservasi lapangan olahraga secara online, memungkinkan Anda memesan dan membayar lapangan secara cepat, mudah, dan real-time.",
+        "Courtly. adalah  sistem reservasi lapangan online berupa platform berbasis website yang memungkinkan pengguna untuk memesan lapangan olahraga (futsal, badminton, basket, voli, tenis, mini soccer, dll). Secara mudah melalui internet. Pengguna dapat melihat jadwal ketersediaan, memilih jam, melakukan pembayaran, serta menerima bukti reservasi tanpa perlu datang langsung ke lokasi.",
     },
     {
-      question: "Siapa saja yang bisa menggunakan Courtly?",
+      question: "Apa saja manfaat menggunakan sistem Courtly.?",
       answer:
-        "Semua individu dan komunitas olahraga dapat menggunakan Courtly untuk mencari, memesan, dan mengelola jadwal lapangan.",
+        "- Praktis: Pemesanan bisa dilakukan kapan saja, 24/7. Transparan: Pengguna dapat melihat jadwal lapangan secara real-time.",
     },
     {
-      question: "Apa saja jenis lapangan yang bisa disewa?",
-      answer:
-        "Kami menyediakan berbagai jenis lapangan seperti Futsal, Basket, Badminton, dan Voli, tergantung ketersediaan mitra kami.",
+      question: "Siapa saja yang bisa menggunakan Courtly.?",
+      answer: "- Individu (pemain casual).",
+    },
+    {
+      question: "Apa saja jenis lapangan yang bisa dipesan?",
+      answer: "Tergantung pengelola, namun biasanya termasuk:",
     },
     {
       question: "Bagaimana cara melakukan reservasi lapangan?",
-      answer:
-        "Pilih olahraga favorit Anda, cari lapangan di lokasi terdekat, pilih slot waktu yang tersedia, dan selesaikan pembayaran.",
+      answer: "- Masuk ke halaman utama website.",
     },
     {
       question: "Apakah saya harus membuat akun?",
-      answer:
-        "Ya, pendaftaran akun diperlukan untuk menyimpan riwayat reservasi dan mengakses fitur reward.",
+      answer: "Tergantung pengaturan pengelola.",
     },
     {
       question: "Apa saja metode pembayaran yang tersedia?",
-      answer:
-        "Kami menerima pembayaran melalui transfer bank, kartu kredit, dan dompet digital.",
+      answer: "Biasanya meliputi:",
     },
   ];
 
   return (
-    <section className="container mx-auto px-4 py-12">
+    <section className="container mx-auto px-4 py-12 md:px-18 md:py-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">FAQ</h2>
       <div className="border border-gray-200 rounded-lg">
         {faqs.map((faq, index) => (
