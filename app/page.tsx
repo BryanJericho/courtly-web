@@ -18,7 +18,7 @@ const HomePage: NextPage = () => {
           content="Reservasi Lapangan Olahraga Cepat, Mudah, dan Real-Time"
         />
       </Head>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#F6F7F9]">
         {/* Mengasumsikan semua komponen ini sudah dikonversi ke TSX */}
         <Header />
         <main>
