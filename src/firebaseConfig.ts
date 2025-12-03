@@ -2,18 +2,18 @@
 
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore"; // 💡 TAMBAHKAN INI
+import { getFirestore, Firestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
+// Firebase configuration dari environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyCbVGFDvdE5rKYR8FsSncltZOt77oxZPZM",
-  authDomain: "courtly-web.firebaseapp.com",
-  projectId: "courtly-web",
-  storageBucket: "courtly-web.firebasestorage.app",
-  messagingSenderId: "23712264842",
-  appId: "1:23712264842:web:05d36ee23e8630fab37373",
-  measurementId: "G-TTHQPFNZHS"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -29,6 +29,6 @@ if (typeof window !== 'undefined') {
 const auth: Auth = getAuth(app);
 
 // Get the Firestore instance
-const db: Firestore = getFirestore(app); // 💡 INISIALISASI FIRESTORE DI SINI
+const db: Firestore = getFirestore(app);
 
-export { app, auth, db, analytics }; // 💡 EKSPOR 'db'
+export { app, auth, db, analytics };
