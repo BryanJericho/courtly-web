@@ -2,15 +2,22 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react'; // 💡 Tambahkan React di sini jika belum ada
-import { useRouter } from 'next/navigation'; // 🚀 Import useRouter untuk navigasi
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FaFacebookF, FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 
-// Pastikan path ini benar ke file konfigurasi Firebase Anda
-import { auth } from '../../src/firebaseConfig'; 
+// 💡 Tambah impor untuk Google Auth dan Firestore
+import { 
+    signInWithEmailAndPassword, 
+    GoogleAuthProvider, 
+    signInWithPopup 
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore'; 
+
+// Pastikan path ini benar dan mengekspor auth dan db
+import { auth, db } from '../../src/firebaseConfig'; 
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,12 +26,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 🚀 Inisialisasi router
   const router = useRouter(); 
   
   // URL gambar
   const badmintonCourtImage = 'http://googleusercontent.com/image_collection/image_retrieval/16031492626801100943_0';
 
+  // 1. Fungsi Login Email/Password
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -42,9 +49,7 @@ export default function LoginPage() {
         password
       );
 
-      console.log('Login Berhasil! User:', userCredential.user);
-      
-      // 🚀 NAVIGASI: Push ke root route (halaman utama)
+      console.log('Login Berhasil! User:', userCredential.user.uid);
       router.push('/'); 
 
     } catch (err: any) {
@@ -66,6 +71,51 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // 2. 🚀 Fungsi Login dengan Google
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const provider = new GoogleAuthProvider();
+    
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Cek apakah user sudah ada di Firestore
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists()) {
+            // Jika user baru (pertama kali login dengan Google), simpan data dasar ke Firestore
+            const fullName = user.displayName?.split(' ') || ['', ''];
+            const firstName = fullName[0];
+            const lastName = fullName.slice(1).join(' ');
+
+            await setDoc(userRef, {
+                uid: user.uid,
+                firstName: firstName,
+                lastName: lastName,
+                email: user.email,
+                phone: userDoc.data()?.phone || '', // Jika pendaftaran via Google, phone biasanya kosong
+                createdAt: new Date().toISOString(),
+                provider: 'google'
+            });
+        }
+
+        console.log('Google Sign-in Berhasil! User:', user.uid);
+        router.push('/'); 
+
+    } catch (err: any) {
+        console.error("Error Google Auth:", err.code, err.message);
+        setError('Login dengan Google gagal. Pastikan Google Sign-in sudah diaktifkan di Firebase Console.');
+    } finally {
+        setLoading(false);
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen">
@@ -201,10 +251,11 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              {/* Google */}
+              {/* Google - 🚀 Dihubungkan ke handleGoogleSignIn */}
               <div>
                 <Link
                   href="#"
+                  onClick={handleGoogleSignIn}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
                   <FcGoogle className="h-5 w-5" aria-hidden="true" />
