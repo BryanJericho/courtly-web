@@ -1,7 +1,12 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // ... Pengaturan Next.js lainnya (jika ada)
 
-const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // 💡 Tambahkan hostname di sini. 
+    // Hapus 'http://' atau 'https://' dan path setelah domain.
+    domains: ['googleusercontent.com'], 
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

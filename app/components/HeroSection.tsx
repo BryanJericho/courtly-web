@@ -33,13 +33,13 @@ export default function HeroSection() {
       >
         
         {/* Teks Heading Utama */}
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 max-w-xl leading-tight">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 max-w-xl leading-tight lg:pl-20">
           Reservasi Lapangan Olahraga <br />
           Cepat, Mudah dan Real-Time
         </h1>
         
         {/* Kontainer untuk Pills dan Tombol */}
-        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-3 mb-4">
+        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-3 mb-4 lg:pl-20">
           
           {/* Elemen 'Pill' untuk Olahraga */}
           <button className="flex items-center bg-white p-2 rounded-full shadow-md text-gray-800 text-sm font-medium pr-3">
