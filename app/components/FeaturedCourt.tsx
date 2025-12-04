@@ -52,6 +52,16 @@ const dummyCourts: Court[] = [
     isFutsal: false,
     isBasket: true,
   },
+    {
+    id: 5,
+    name: "Sports Hall E",
+    location: "Bekasuy",
+    price: "125.000",
+    rating: 4.1,
+    imageUrl: "/path/5.png",
+    isFutsal: true,
+    isBasket: true,
+  },
 ];
 
 // 2. Terapkan Filtering untuk Mengatasi Error 'category is never read'
