@@ -32,7 +32,7 @@ const Header: React.FC = () => {
               Beranda
             </Link>
             <Link
-              href="/search"
+              href="/carilapangan"
               className="text-gray-800 hover:text-green-600 hidden sm:block"
             >
               Cari Lapangan
