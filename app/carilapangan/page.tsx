@@ -1,4 +1,3 @@
-// pages/cari-lapangan.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -170,191 +169,7 @@ const SPORTS = [
   "Bulu Tangkis",
 ];
 
-export default function CariLapanganPage() {
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [priceRange, setPriceRange] = useState("Semua");
-  const [capacity, setCapacity] = useState<string | null>(null);
-  const [environment, setEnvironment] = useState<string | null>(null);
-
-  const filteredCourts = COURTS_DATA.filter((court) => {
-    const locationMatch =
-      !selectedLocation || court.location === selectedLocation;
-    const sportMatch = !selectedSport || court.sport === selectedSport;
-    const priceMatch =
-      priceRange === "Semua" ||
-      (priceRange === "100k-500k" &&
-        court.price >= 100000 &&
-        court.price <= 500000) ||
-      (priceRange === "500k-1jt" &&
-        court.price > 500000 &&
-        court.price <= 1000000);
-
-    return locationMatch && sportMatch && priceMatch;
-  });
-
-  return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gray-50 pt-24">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex gap-8">
-            {/* Sidebar Filter */}
-            <div className="w-64 flex-shrink-0">
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-4">LOKASI</h3>
-                <div className="space-y-2 mb-6">
-                  {LOCATIONS.map((loc) => (
-                    <label key={loc} className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedLocation === loc}
-                        onChange={() =>
-                          setSelectedLocation(
-                            selectedLocation === loc ? null : loc
-                          )
-                        }
-                        className="w-4 h-4 text-green-600 rounded"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{loc}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <h3 className="font-bold text-gray-900 mb-4">JENIS OLAHRAGA</h3>
-                <div className="space-y-2 mb-6">
-                  {SPORTS.map((sport) => (
-                    <label key={sport} className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedSport === sport}
-                        onChange={() =>
-                          setSelectedSport(
-                            selectedSport === sport ? null : sport
-                          )
-                        }
-                        className="w-4 h-4 text-green-600 rounded"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{sport}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <h3 className="font-bold text-gray-900 mb-4">KAPASITAS</h3>
-                <div className="space-y-2 mb-6">
-                  {["1 vs 1", "2 vs 2", "5 vs 5"].map((cap) => (
-                    <label key={cap} className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={capacity === cap}
-                        onChange={() =>
-                          setCapacity(capacity === cap ? null : cap)
-                        }
-                        className="w-4 h-4 text-green-600 rounded"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{cap}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <h3 className="font-bold text-gray-900 mb-4">HARGA</h3>
-                <div className="space-y-2 mb-6">
-                  {["Semua", "100k-500k", "500k-1jt"].map((price) => (
-                    <label key={price} className="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        name="price"
-                        checked={priceRange === price}
-                        onChange={() => setPriceRange(price)}
-                        className="w-4 h-4 text-green-600"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">
-                        {price === "Semua" && "Semua harga"}
-                        {price === "100k-500k" && "Rp 100.000 - Rp 500.000"}
-                        {price === "500k-1jt" && "Rp 500.000 - Rp 1.000.000"}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-
-                <h3 className="font-bold text-gray-900 mb-4">LINGKUNGAN</h3>
-                <div className="space-y-2">
-                  {["Indoor", "Outdoor"].map((env) => (
-                    <label key={env} className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={environment === env}
-                        onChange={() =>
-                          setEnvironment(environment === env ? null : env)
-                        }
-                        className="w-4 h-4 text-green-600 rounded"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{env}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <button className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                  Ajukan
-                </button>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1">
-              {/* Section: Lapangan Futsal Populer */}
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Lapangan Futsal Populer ⚽
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCourts
-                    .filter((c) => c.sport === "Futsal")
-                    .slice(0, 3)
-                    .map((court) => (
-                      <CourtCard key={court.id} court={court} />
-                    ))}
-                </div>
-              </div>
-
-              {/* Section: Lapangan Basket Populer */}
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Lapangan Basket Populer 🏀
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCourts
-                    .filter((c) => c.sport === "Basket")
-                    .slice(0, 3)
-                    .map((court) => (
-                      <CourtCard key={court.id} court={court} />
-                    ))}
-                </div>
-              </div>
-
-              {/* Section: Lapangan Tenis Populer */}
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Lapangan Tenis Populer 🎾
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCourts
-                    .filter((c) => c.sport === "Tenis")
-                    .slice(0, 3)
-                    .map((court) => (
-                      <CourtCard key={court.id} court={court} />
-                    ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Footer />
-    </>
-  );
-}
-
+// --- CourtCard Component ---
 function CourtCard({ court }: { court: Court }) {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
@@ -406,6 +221,175 @@ function CourtCard({ court }: { court: Court }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+// --- End CourtCard Component ---
+
+export default function CariLapanganPage() {
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [priceRange, setPriceRange] = useState("Semua");
+  const [capacity, setCapacity] = useState<string | null>(null);
+  const [environment, setEnvironment] = useState<string | null>(null);
+
+  const filteredCourts = COURTS_DATA.filter((court) => {
+    const locationMatch =
+      !selectedLocation || court.location === selectedLocation;
+    const sportMatch = !selectedSport || court.sport === selectedSport;
+    const priceMatch =
+      priceRange === "Semua" ||
+      (priceRange === "100k-500k" &&
+        court.price >= 100000 &&
+        court.price <= 500000) ||
+      (priceRange === "500k-1jt" &&
+        court.price > 500000 &&
+        court.price <= 1000000);
+
+    return locationMatch && sportMatch && priceMatch;
+  });
+
+  return (
+    <div className="flex flex-col min-h-screen bg-white">
+      <Header />
+      <div className="flex-grow bg-gray-50 pt-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            {/* Sidebar Filter - Hidden di mobile, show di lg */}
+            <div className="hidden lg:block lg:w-64 flex-shrink-0">
+              <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24">
+                <h3 className="font-bold text-gray-900 mb-4">LOKASI</h3>
+                <div className="space-y-2 mb-6">
+                  {LOCATIONS.map((loc) => (
+                    <label key={loc} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedLocation === loc}
+                        onChange={() =>
+                          setSelectedLocation(
+                            selectedLocation === loc ? null : loc
+                          )
+                        }
+                        className="w-4 h-4 text-green-600 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{loc}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <h3 className="font-bold text-gray-900 mb-4">JENIS OLAHRAGA</h3>
+                <div className="space-y-2 mb-6">
+                  {SPORTS.map((sport) => (
+                    <label key={sport} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedSport === sport}
+                        onChange={() =>
+                          setSelectedSport(
+                            selectedSport === sport ? null : sport
+                          )
+                        }
+                        className="w-4 h-4 text-green-600 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{sport}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <h3 className="font-bold text-gray-900 mb-4">HARGA</h3>
+                <div className="space-y-2 mb-6">
+                  {["Semua", "100k-500k", "500k-1jt"].map((price) => (
+                    <label key={price} className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="price"
+                        checked={priceRange === price}
+                        onChange={() => setPriceRange(price)}
+                        className="w-4 h-4 text-green-600"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        {price === "Semua" && "Semua harga"}
+                        {price === "100k-500k" && "Rp 100.000 - Rp 500.000"}
+                        {price === "500k-1jt" && "Rp 500.000 - Rp 1.000.000"}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                <h3 className="font-bold text-gray-900 mb-4">LINGKUNGAN</h3>
+                <div className="space-y-2">
+                  {["Indoor", "Outdoor"].map((env) => (
+                    <label key={env} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={environment === env}
+                        onChange={() =>
+                          setEnvironment(environment === env ? null : env)
+                        }
+                        className="w-4 h-4 text-green-600 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{env}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <button className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                  Filter
+                </button>
+              </div>
+            </div>
+
+            {/* Main Content - Full width di mobile */}
+            <div className="flex-1 w-full">
+              {/* Section 1: Lapangan Futsal Populer */}
+              <div className="mb-12">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                  Lapangan Futsal Populer ⚽
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {filteredCourts
+                    .filter((c) => c.sport === "Futsal")
+                    .slice(0, 3)
+                    .map((court) => (
+                      <CourtCard key={court.id} court={court} />
+                    ))}
+                </div>
+              </div>
+
+              {/* Section 2: Lapangan Basket Populer */}
+              <div className="mb-12">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                  Lapangan Basket Populer 🏀
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {filteredCourts
+                    .filter((c) => c.sport === "Basket")
+                    .slice(0, 3)
+                    .map((court) => (
+                      <CourtCard key={court.id} court={court} />
+                    ))}
+                </div>
+              </div>
+
+              {/* Section 3: Lapangan Tenis Populer */}
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                  Lapangan Tenis Populer 🎾
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {filteredCourts
+                    .filter((c) => c.sport === "Tenis")
+                    .slice(0, 3)
+                    .map((court) => (
+                      <CourtCard key={court.id} court={court} />
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 }
