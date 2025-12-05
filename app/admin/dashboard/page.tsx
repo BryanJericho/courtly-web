@@ -1,4 +1,3 @@
-trus create page.tsx :
 "use client";
 
 import { useEffect, useState } from "react";
@@ -71,7 +70,7 @@ export default function AdminDashboard() {
 
     const badge = badges[status] || badges.inactive;
     return (
-      <span className={px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}}>
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}>
         {badge.label}
       </span>
     );
@@ -86,7 +85,7 @@ export default function AdminDashboard() {
 
     const badge = badges[role] || badges.user;
     return (
-      <span className={px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}}>
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}>
         {badge.label}
       </span>
     );
@@ -116,7 +115,7 @@ export default function AdminDashboard() {
           <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard Admin</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mt-5">Dashboard Admin</h1>
               <p className="mt-2 text-gray-700">
                 Kelola seluruh sistem Courtly
               </p>
