@@ -10,6 +10,8 @@ import Footer from "../../components/Footer";
 import { getCourt, getToko } from "../../lib/firestore";
 import { useAuth } from "../../lib/AuthContext";
 import type { Court, Toko } from "../../lib/types";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../../src/firebaseConfig";
 
 export default function CourtDetailPage() {
   const params = useParams();
@@ -24,9 +26,11 @@ export default function CourtDetailPage() {
 
   // Booking state
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [duration, setDuration] = useState(1);
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,9 +48,15 @@ export default function CourtDetailPage() {
         const tokoData = await getToko(courtData.tokoId);
         setToko(tokoData);
 
-        // Set default date to today
-        const today = new Date().toISOString().split("T")[0];
-        setSelectedDate(today);
+        // Generate next 7 days
+        const dates = [];
+        for (let i = 0; i < 7; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() + i);
+          dates.push(date.toISOString().split("T")[0]);
+        }
+        setAvailableDates(dates);
+        setSelectedDate(dates[0]);
       } catch (err) {
         console.error("Error fetching court:", err);
         setError("Gagal memuat data lapangan");
@@ -58,7 +68,40 @@ export default function CourtDetailPage() {
     fetchData();
   }, [courtId]);
 
-  // Generate time slots
+  // Fetch booked slots when date changes
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      if (!selectedDate || !courtId) return;
+
+      setLoadingSlots(true);
+      try {
+        const bookingsRef = collection(db, "bookings");
+        const q = query(
+          bookingsRef,
+          where("courtId", "==", courtId),
+          where("date", "==", selectedDate),
+          where("status", "in", ["pending", "confirmed"])
+        );
+        const querySnapshot = await getDocs(q);
+
+        const booked: string[] = [];
+        querySnapshot.forEach((doc) => {
+          const booking = doc.data();
+          booked.push(booking.startTime);
+        });
+
+        setBookedSlots(booked);
+      } catch (error) {
+        console.error("Error fetching booked slots:", error);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+
+    fetchBookedSlots();
+  }, [selectedDate, courtId]);
+
+  // Generate time slots with end time
   const generateTimeSlots = () => {
     if (!court) return [];
 
@@ -67,8 +110,12 @@ export default function CourtDetailPage() {
     const [endHour] = court.availability.endTime.split(":").map(Number);
 
     for (let hour = startHour; hour < endHour; hour++) {
-      const timeString = `${hour.toString().padStart(2, "0")}:00`;
-      slots.push(timeString);
+      const startTime = `${hour.toString().padStart(2, "0")}:00`;
+      const endTime = `${(hour + 1).toString().padStart(2, "0")}:00`;
+      slots.push({
+        value: startTime,
+        label: `${startTime} - ${endTime}`
+      });
     }
 
     return slots;
@@ -76,26 +123,77 @@ export default function CourtDetailPage() {
 
   const timeSlots = generateTimeSlots();
 
-  const calculateTotal = () => {
-    if (!court) return 0;
-    return court.price * duration;
+  const toggleTimeSlot = (time: string) => {
+    setSelectedTimeSlots((prev) => {
+      if (prev.includes(time)) {
+        return prev.filter((t) => t !== time);
+      } else {
+        return [...prev, time].sort();
+      }
+    });
   };
 
-  const handleBooking = () => {
+  const calculateTotal = () => {
+    if (!court) return 0;
+    return court.price * selectedTimeSlots.length;
+  };
+
+  const handleBooking = async () => {
     if (!user) {
       router.push("/login");
       return;
     }
 
-    if (!selectedDate || !selectedTime) {
-      alert("Silakan pilih tanggal dan waktu");
+    if (!selectedDate || selectedTimeSlots.length === 0) {
+      alert("Silakan pilih tanggal dan minimal 1 slot waktu");
       return;
     }
 
-    // TODO: Implement booking logic
-    router.push(
-      `/booking/confirm?courtId=${courtId}&date=${selectedDate}&time=${selectedTime}&duration=${duration}`
-    );
+    // Check for booking conflict for each selected slot
+    try {
+      for (const timeSlot of selectedTimeSlots) {
+        const hasConflict = await checkBookingConflict(
+          courtId,
+          selectedDate,
+          timeSlot,
+          1 // Each slot is 1 hour
+        );
+
+        if (hasConflict) {
+          alert(
+            `Maaf, slot waktu ${timeSlot} sudah dibooking. Silakan hapus slot tersebut atau pilih waktu lain.`
+          );
+          return;
+        }
+      }
+
+      // All slots available, proceed to booking confirmation
+      const duration = selectedTimeSlots.length;
+      const startTime = selectedTimeSlots[0];
+      router.push(
+        `/booking/confirm?courtId=${courtId}&date=${selectedDate}&time=${startTime}&duration=${duration}`
+      );
+    } catch (error) {
+      console.error("Error checking booking conflict:", error);
+      alert("Terjadi kesalahan. Silakan coba lagi.");
+    }
+  };
+
+  const formatDateLabel = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return "Hari Ini";
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return "Besok";
+    } else {
+      return date.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" });
+    }
   };
 
   const getSportLabel = (sport: string) => {
@@ -365,63 +463,89 @@ export default function CourtDetailPage() {
 
                 {/* Booking Form */}
                 <div className="space-y-4 mb-6">
-                  {/* Date */}
+                  {/* Date Tabs */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Tanggal
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Pilih Tanggal
                     </label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium"
-                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableDates.map((date) => (
+                        <button
+                          key={date}
+                          onClick={() => {
+                            setSelectedDate(date);
+                            setSelectedTimeSlots([]);
+                          }}
+                          className={`px-3 py-2 text-xs font-medium rounded-lg border-2 transition ${
+                            selectedDate === date
+                              ? "bg-green-500 text-white border-green-500"
+                              : "bg-white text-gray-700 border-gray-300 hover:border-green-500"
+                          }`}
+                        >
+                          {formatDateLabel(date)}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Time */}
+                  {/* Time Slots */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Jam Mulai
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Pilih Slot Waktu {loadingSlots && "(Memuat...)"}
                     </label>
-                    <select
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium"
-                    >
-                      <option value="">Pilih Jam</option>
-                      {timeSlots.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                      {timeSlots.map((slot) => {
+                        const isBooked = bookedSlots.includes(slot.value);
+                        const isSelected = selectedTimeSlots.includes(slot.value);
+                        return (
+                          <button
+                            key={slot.value}
+                            onClick={() => !isBooked && toggleTimeSlot(slot.value)}
+                            disabled={isBooked}
+                            className={`px-3 py-2 text-xs font-medium rounded-lg border-2 transition ${
+                              isBooked
+                                ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                                : isSelected
+                                ? "bg-green-500 text-white border-green-500"
+                                : "bg-white text-gray-700 border-gray-300 hover:border-green-500"
+                            }`}
+                          >
+                            {slot.label}
+                            {isBooked && (
+                              <span className="block text-[10px] mt-0.5">Sudah Dipesan</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  {/* Duration */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Durasi (Jam)
-                    </label>
-                    <select
-                      value={duration}
-                      onChange={(e) => setDuration(Number(e.target.value))}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 font-medium"
-                    >
-                      {[1, 2, 3, 4, 5, 6].map((d) => (
-                        <option key={d} value={d}>
-                          {d} Jam
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Selected Slots Info */}
+                  {selectedTimeSlots.length > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-blue-900 mb-1">
+                        Slot Terpilih ({selectedTimeSlots.length} jam):
+                      </p>
+                      <div className="text-xs text-blue-800">
+                        {selectedTimeSlots.map((time, idx) => {
+                          const slot = timeSlots.find(s => s.value === time);
+                          return (
+                            <span key={time}>
+                              {slot?.label || time}
+                              {idx < selectedTimeSlots.length - 1 && ", "}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Total */}
                 <div className="mb-6 p-5 bg-green-50 rounded-lg border-2 border-green-200">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-gray-800 font-medium">
-                      Rp {formattedPrice} x {duration} jam
+                      Rp {formattedPrice} x {selectedTimeSlots.length || 0} jam
                     </span>
                     <span className="font-bold text-gray-900">
                       Rp {new Intl.NumberFormat("id-ID").format(calculateTotal())}
@@ -438,10 +562,14 @@ export default function CourtDetailPage() {
                 {/* Booking Button */}
                 <button
                   onClick={handleBooking}
-                  disabled={court.status !== "available"}
+                  disabled={court.status !== "available" || selectedTimeSlots.length === 0}
                   className="w-full py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {court.status === "available" ? "Pesan Sekarang" : "Tidak Tersedia"}
+                  {court.status !== "available"
+                    ? "Tidak Tersedia"
+                    : selectedTimeSlots.length === 0
+                    ? "Pilih Slot Waktu"
+                    : "Pesan Sekarang"}
                 </button>
 
                 {!user && (
