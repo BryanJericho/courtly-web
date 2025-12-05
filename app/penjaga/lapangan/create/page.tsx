@@ -8,6 +8,7 @@ import type { Toko, SportType, EnvironmentType } from "../../../lib/types";
 import RoleGuard from "../../../components/RoleGuard";
 import Header from "../../../components/Header";
 import Link from "next/link";
+import CloudinaryUpload from "../../../components/CloudinaryUpload";
 
 export default function CreateLapanganPage() {
   const { user } = useAuth();
@@ -23,7 +24,7 @@ export default function CreateLapanganPage() {
     price: "",
     capacity: "",
     environment: "" as EnvironmentType,
-    imageUrl: "",
+    images: [] as string[],
     facilities: [] as string[],
     startTime: "08:00",
     endTime: "22:00",
@@ -98,7 +99,7 @@ export default function CreateLapanganPage() {
         price: parseInt(formData.price),
         capacity: parseInt(formData.capacity),
         environment: formData.environment,
-        images: formData.imageUrl ? [formData.imageUrl] : [],
+        images: formData.images,
         facilities: formData.facilities,
         availability: {
           startTime: formData.startTime,
@@ -362,22 +363,12 @@ export default function CreateLapanganPage() {
                       Gambar Lapangan
                     </h2>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        URL Gambar (Opsional)
-                      </label>
-                      <input
-                        type="url"
-                        name="imageUrl"
-                        value={formData.imageUrl}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="https://images.unsplash.com/..."
-                      />
-                      <p className="mt-1 text-sm text-gray-500">
-                        Masukkan URL gambar dari Unsplash atau sumber lain
-                      </p>
-                    </div>
+                    <CloudinaryUpload
+                      onUploadSuccess={(urls) => setFormData({ ...formData, images: urls })}
+                      multiple={true}
+                      maxFiles={5}
+                      existingImages={formData.images}
+                    />
                   </div>
 
                   {/* Buttons */}

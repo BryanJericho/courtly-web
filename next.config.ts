@@ -5,7 +5,13 @@ const nextConfig = {
   images: {
     // 💡 Tambahkan hostname di sini.
     // Hapus 'http://' atau 'https://' dan path setelah domain.
-    domains: ['googleusercontent.com', 'images.unsplash.com', 'www.google.com', 'lh3.googleusercontent.com'],
+    domains: [
+      'googleusercontent.com',
+      'images.unsplash.com',
+      'www.google.com',
+      'lh3.googleusercontent.com',
+      'res.cloudinary.com', // Cloudinary CDN
+    ],
   },
 };
 
