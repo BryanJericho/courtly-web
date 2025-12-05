@@ -52,7 +52,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           // Fetch user data from Firestore
           const userData = await getUser(firebaseUser.uid);
-          setUser(userData);
+
+          if (!userData) {
+            // If user data not found in Firestore, create minimal user object
+            console.warn("User data not found in Firestore for UID:", firebaseUser.uid);
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || "",
+              firstName: firebaseUser.displayName?.split(" ")[0] || "User",
+              lastName: firebaseUser.displayName?.split(" ")[1] || "",
+              phone: firebaseUser.phoneNumber || "",
+              role: "user",
+              createdAt: new Date().toISOString(),
+            });
+          } else {
+            setUser(userData);
+          }
         } catch (error) {
           console.error("Error fetching user data:", error);
           setUser(null);
