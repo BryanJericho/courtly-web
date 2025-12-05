@@ -100,6 +100,7 @@ export default function LoginPage() {
                 lastName: lastName,
                 email: user.email,
                 phone: userDoc.data()?.phone || '', // Jika pendaftaran via Google, phone biasanya kosong
+                role: 'user', // Default role
                 createdAt: new Date().toISOString(),
                 provider: 'google'
             });

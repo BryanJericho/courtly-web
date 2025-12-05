@@ -67,13 +67,14 @@ export default function RegisterPage() {
             const fullName = `${formData.firstName} ${formData.lastName}`;
             await updateProfile(user, { displayName: fullName });
 
-            // Simpan data ke Firestore
+            // Simpan data ke Firestore dengan role default 'user'
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 phone: formData.phone,
+                role: 'user', // Default role
                 createdAt: new Date().toISOString(),
             });
 
@@ -125,6 +126,7 @@ export default function RegisterPage() {
                     lastName: lastName,
                     email: user.email,
                     phone: '', // Nomor telepon harus diisi manual jika menggunakan Google Auth
+                    role: 'user', // Default role
                     createdAt: new Date().toISOString(),
                     provider: 'google'
                 });

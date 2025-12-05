@@ -1,0 +1,140 @@
+// Firestore Security Rules untuk Courtly
+// Copy rules ini ke Firebase Console > Firestore Database > Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function untuk check auth
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function untuk get user data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Helper function untuk check role
+    function hasRole(role) {
+      return isSignedIn() && getUserData().role == role;
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      // Anyone can read their own user document
+      allow read: if isSignedIn() && request.auth.uid == userId;
+
+      // Super admin can read all users
+      allow read: if hasRole('super_admin');
+
+      // Users can update their own profile (except role)
+      allow update: if isSignedIn()
+                    && request.auth.uid == userId
+                    && !('role' in request.resource.data.diff(resource.data).affectedKeys());
+
+      // Super admin can update any user (including role)
+      allow update: if hasRole('super_admin');
+
+      // Only system can create users (via Firebase Auth)
+      allow create: if isSignedIn() && request.auth.uid == userId;
+
+      // Super admin can delete users
+      allow delete: if hasRole('super_admin');
+    }
+
+    // ============================================
+    // TOKOS COLLECTION
+    // ============================================
+    match /tokos/{tokoId} {
+      // Anyone can read active tokos
+      allow read: if resource.data.status == 'active';
+
+      // Penjaga can read their own toko (any status)
+      allow read: if isSignedIn() && resource.data.penjagaId == request.auth.uid;
+
+      // Super admin can read all tokos
+      allow read: if hasRole('super_admin');
+
+      // Penjaga lapangan can create toko
+      allow create: if hasRole('penjaga_lapangan')
+                    && request.resource.data.penjagaId == request.auth.uid
+                    && request.resource.data.status == 'pending_approval';
+
+      // Penjaga can update their own toko (except status)
+      allow update: if isSignedIn()
+                    && resource.data.penjagaId == request.auth.uid
+                    && !('status' in request.resource.data.diff(resource.data).affectedKeys())
+                    && !('penjagaId' in request.resource.data.diff(resource.data).affectedKeys());
+
+      // Super admin can update any toko (including status)
+      allow update: if hasRole('super_admin');
+
+      // Super admin can delete tokos
+      allow delete: if hasRole('super_admin');
+    }
+
+    // ============================================
+    // COURTS COLLECTION
+    // ============================================
+    match /courts/{courtId} {
+      // Anyone can read available courts from active tokos
+      allow read: if true; // Will be filtered by toko status in frontend
+
+      // Penjaga can create courts in their own toko
+      allow create: if isSignedIn()
+                    && hasRole('penjaga_lapangan')
+                    && get(/databases/$(database)/documents/tokos/$(request.resource.data.tokoId)).data.penjagaId == request.auth.uid;
+
+      // Penjaga can update courts in their own toko
+      allow update: if isSignedIn()
+                    && get(/databases/$(database)/documents/tokos/$(resource.data.tokoId)).data.penjagaId == request.auth.uid;
+
+      // Super admin can create/update any court
+      allow create, update: if hasRole('super_admin');
+
+      // Super admin or penjaga (own toko) can delete courts
+      allow delete: if hasRole('super_admin')
+                    || (isSignedIn() && get(/databases/$(database)/documents/tokos/$(resource.data.tokoId)).data.penjagaId == request.auth.uid);
+    }
+
+    // ============================================
+    // BOOKINGS COLLECTION
+    // ============================================
+    match /bookings/{bookingId} {
+      // Users can read their own bookings
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      // Penjaga can read bookings for their toko
+      allow read: if isSignedIn()
+                  && get(/databases/$(database)/documents/tokos/$(resource.data.tokoId)).data.penjagaId == request.auth.uid;
+
+      // Super admin can read all bookings
+      allow read: if hasRole('super_admin');
+
+      // Authenticated users can create bookings
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.paymentStatus == 'pending';
+
+      // Users can cancel their own pending bookings
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
+                    && resource.data.status == 'pending'
+                    && request.resource.data.status == 'cancelled';
+
+      // Penjaga can update booking status for their toko
+      allow update: if isSignedIn()
+                    && get(/databases/$(database)/documents/tokos/$(resource.data.tokoId)).data.penjagaId == request.auth.uid;
+
+      // Super admin can update any booking
+      allow update: if hasRole('super_admin');
+
+      // No one can delete bookings (for record keeping)
+      allow delete: if false;
+    }
+  }
+}
