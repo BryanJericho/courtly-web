@@ -456,6 +456,48 @@ export const getAllBookings = async (): Promise<Booking[]> => {
   }
 };
 
+export const checkBookingConflict = async (
+  courtId: string,
+  date: string,
+  startTime: string,
+  duration: number
+): Promise<boolean> => {
+  try {
+    const bookingsRef = collection(db, "bookings");
+    const q = query(
+      bookingsRef,
+      where("courtId", "==", courtId),
+      where("date", "==", date),
+      where("status", "in", ["pending", "confirmed"])
+    );
+    const querySnapshot = await getDocs(q);
+
+    // Calculate end time for the requested booking
+    const [reqStartHours, reqStartMinutes] = startTime.split(":").map(Number);
+    const reqEndHours = reqStartHours + duration;
+
+    // Check if any existing booking conflicts with the requested time
+    for (const doc of querySnapshot.docs) {
+      const booking = doc.data() as Booking;
+      const [existStartHours, existStartMinutes] = booking.startTime
+        .split(":")
+        .map(Number);
+      const existEndHours = existStartHours + booking.duration;
+
+      // Check for overlap
+      // Conflict if: (reqStart < existEnd) AND (reqEnd > existStart)
+      if (reqStartHours < existEndHours && reqEndHours > existStartHours) {
+        return true; // Conflict found
+      }
+    }
+
+    return false; // No conflict
+  } catch (error) {
+    console.error("Error checking booking conflict:", error);
+    throw error;
+  }
+};
+
 export const updateBooking = async (
   bookingId: string,
   data: Partial<Booking>
