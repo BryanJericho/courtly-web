@@ -154,7 +154,7 @@ const Header: React.FC = () => {
 
                   {user.role === "user" && (
                     <Link
-                      href="/mybookings"
+                      href="/bookings"
                       onClick={() => setIsDropdownOpen(false)}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >

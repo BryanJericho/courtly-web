@@ -7,7 +7,7 @@ import Link from "next/link";
 import { FaMapMarkerAlt, FaUsers, FaClock, FaStar } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { getCourt, getToko } from "../../lib/firestore";
+import { getCourt, getToko, checkBookingConflict } from "../../lib/firestore";
 import { useAuth } from "../../lib/AuthContext";
 import type { Court, Toko } from "../../lib/types";
 
@@ -81,7 +81,7 @@ export default function CourtDetailPage() {
     return court.price * duration;
   };
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!user) {
       router.push("/login");
       return;
@@ -92,10 +92,30 @@ export default function CourtDetailPage() {
       return;
     }
 
-    // TODO: Implement booking logic
-    router.push(
-      `/booking/confirm?courtId=${courtId}&date=${selectedDate}&time=${selectedTime}&duration=${duration}`
-    );
+    // Check for booking conflict
+    try {
+      const hasConflict = await checkBookingConflict(
+        courtId,
+        selectedDate,
+        selectedTime,
+        duration
+      );
+
+      if (hasConflict) {
+        alert(
+          "Maaf, waktu yang Anda pilih sudah dibooking oleh pengguna lain. Silakan pilih waktu yang berbeda."
+        );
+        return;
+      }
+
+      // Proceed to booking confirmation
+      router.push(
+        `/booking/confirm?courtId=${courtId}&date=${selectedDate}&time=${selectedTime}&duration=${duration}`
+      );
+    } catch (error) {
+      console.error("Error checking booking conflict:", error);
+      alert("Terjadi kesalahan. Silakan coba lagi.");
+    }
   };
 
   const getSportLabel = (sport: string) => {
