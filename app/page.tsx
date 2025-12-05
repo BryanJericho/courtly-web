@@ -1,4 +1,4 @@
-// pages/index.tsx
+// app/page.tsx
 import Head from "next/head";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
@@ -6,7 +6,6 @@ import FeaturedCourts from "./components/FeaturedCourt";
 import FAQSection from "./components/FAQSection";
 import Footer from "./components/Footer";
 import type { NextPage } from "next";
-import SearchBar from "./components/SearchBar";
 
 const HomePage: NextPage = () => {
   return (
@@ -19,18 +18,21 @@ const HomePage: NextPage = () => {
         />
       </Head>
       <div className="min-h-screen bg-[#F6F7F9]">
-        {/* Mengasumsikan semua komponen ini sudah dikonversi ke TSX */}
         <Header />
         <main>
           <HeroSection />
-          {/* Menggunakan prop untuk judul dan kategori */}
+          {/* Fetch courts dari Firestore berdasarkan sport type */}
           <FeaturedCourts
             title="Lapangan Futsal Populer ⚽"
-            category="futsal"
+            sport="futsal"
           />
           <FeaturedCourts
             title="Lapangan Basket Populer 🏀"
-            category="basket"
+            sport="basket"
+          />
+          <FeaturedCourts
+            title="Lapangan Tenis Populer 🎾"
+            sport="tenis"
           />
           <FAQSection />
         </main>

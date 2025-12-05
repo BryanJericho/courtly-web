@@ -3,6 +3,7 @@
 import React from "react";
 import "./globals.css";
 import { poppins } from "./lib/font";
+import { AuthProvider } from "./lib/AuthContext";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -14,8 +15,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="id">
       {/* Terapkan kelas font Poppins ke body */}
       <body className={poppins.className}>
-        {/* Konten halaman Anda (page.tsx) akan dimasukkan di sini */}
-        {children}
+        {/* Wrap dengan AuthProvider untuk auth state management */}
+        <AuthProvider>
+          {/* Konten halaman Anda (page.tsx) akan dimasukkan di sini */}
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

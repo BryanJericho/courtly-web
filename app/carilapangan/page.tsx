@@ -1,206 +1,67 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaMapMarkerAlt, FaClock, FaStar, FaUsers } from "react-icons/fa";
+import { useSearchParams } from "next/navigation";
+import { FaMapMarkerAlt, FaUsers } from "react-icons/fa";
+import Image from "next/image";
+import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { useCourts } from "../hooks/useCourts";
+import type { Court, SportType, EnvironmentType } from "../lib/types";
 
-interface Court {
-  id: number;
-  name: string;
-  location: string;
-  sport: string;
-  rating: number;
-  price: number;
-  image: string;
-  availability: string;
-  capacity: number;
-}
+const LOCATIONS = ["Jakarta", "Surabaya", "Bandung", "Makassar", "Medan"];
+const SPORTS: SportType[] = ["futsal", "basket", "voli", "tenis", "badminton"];
 
-const COURTS_DATA: Court[] = [
-  {
-    id: 1,
-    name: "Stadion Futsal",
-    location: "Rappocini",
-    sport: "Futsal",
-    rating: 4.8,
-    price: 150000,
-    image: "/images/court-1.jpg",
-    availability: "Mulai dari 10:00 / jam",
-    capacity: 10,
-  },
-  {
-    id: 2,
-    name: "Stadion Futsal",
-    location: "Rappocini",
-    sport: "Futsal",
-    rating: 4.8,
-    price: 150000,
-    image: "/images/court-2.jpg",
-    availability: "Mulai dari 10:00 / jam",
-    capacity: 10,
-  },
-  {
-    id: 3,
-    name: "Stadion Futsal",
-    location: "Rappocini",
-    sport: "Futsal",
-    rating: 4.8,
-    price: 150000,
-    image: "/images/court-3.jpg",
-    availability: "Mulai dari 10:00 / jam",
-    capacity: 10,
-  },
-  {
-    id: 4,
-    name: "Stadion Futsal",
-    location: "Jakarta",
-    sport: "Futsal",
-    rating: 4.7,
-    price: 140000,
-    image: "/images/court-4.jpg",
-    availability: "Mulai dari 09:00 / jam",
-    capacity: 10,
-  },
-  {
-    id: 5,
-    name: "Stadion Futsal",
-    location: "Jakarta",
-    sport: "Futsal",
-    rating: 4.7,
-    price: 140000,
-    image: "/images/court-5.jpg",
-    availability: "Mulai dari 09:00 / jam",
-    capacity: 10,
-  },
-  {
-    id: 6,
-    name: "Stadion Futsal",
-    location: "Jakarta",
-    sport: "Futsal",
-    rating: 4.7,
-    price: 140000,
-    image: "/images/court-6.jpg",
-    availability: "Mulai dari 09:00 / jam",
-    capacity: 10,
-  },
-  {
-    id: 7,
-    name: "Stadion Basket",
-    location: "Surabaya",
-    sport: "Basket",
-    rating: 4.9,
-    price: 200000,
-    image: "/images/court-7.jpg",
-    availability: "Mulai dari 08:00 / jam",
-    capacity: 12,
-  },
-  {
-    id: 8,
-    name: "Stadion Basket",
-    location: "Surabaya",
-    sport: "Basket",
-    rating: 4.9,
-    price: 200000,
-    image: "/images/court-8.jpg",
-    availability: "Mulai dari 08:00 / jam",
-    capacity: 12,
-  },
-  {
-    id: 9,
-    name: "Stadion Basket",
-    location: "Surabaya",
-    sport: "Basket",
-    rating: 4.9,
-    price: 200000,
-    image: "/images/court-9.jpg",
-    availability: "Mulai dari 08:00 / jam",
-    capacity: 12,
-  },
-  {
-    id: 10,
-    name: "Stadion Tenis",
-    location: "Bandung",
-    sport: "Tenis",
-    rating: 4.6,
-    price: 250000,
-    image: "/images/court-10.jpg",
-    availability: "Mulai dari 09:00 / jam",
-    capacity: 4,
-  },
-  {
-    id: 11,
-    name: "Stadion Tenis",
-    location: "Bandung",
-    sport: "Tenis",
-    rating: 4.6,
-    price: 250000,
-    image: "/images/court-11.jpg",
-    availability: "Mulai dari 09:00 / jam",
-    capacity: 4,
-  },
-  {
-    id: 12,
-    name: "Stadion Tenis",
-    location: "Bandung",
-    sport: "Tenis",
-    rating: 4.6,
-    price: 250000,
-    image: "/images/court-12.jpg",
-    availability: "Mulai dari 09:00 / jam",
-    capacity: 4,
-  },
-];
+// CourtCard Component untuk halaman Cari Lapangan
+function CourtCardSearch({ court }: { court: Court }) {
+  const formattedPrice = new Intl.NumberFormat("id-ID").format(court.price);
 
-const LOCATIONS = [
-  "Jakarta",
-  "Surabaya",
-  "Bandung",
-  "Rappocini",
-  "Medan",
-  "Semarang",
-];
-const SPORTS = [
-  "Futsal",
-  "Basket",
-  "Voli",
-  "Tenis",
-  "Badminton",
-  "Bulu Tangkis",
-];
+  const getSportLabel = (sport: string) => {
+    const labels: Record<string, string> = {
+      futsal: "⚽ Futsal",
+      basket: "🏀 Basket",
+      tenis: "🎾 Tenis",
+      badminton: "🏸 Badminton",
+      voli: "🏐 Voli",
+    };
+    return labels[sport] || sport;
+  };
 
-// --- CourtCard Component ---
-function CourtCard({ court }: { court: Court }) {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
       {/* Image */}
       <div className="relative h-40 bg-gray-300">
-        <img
-          src={court.image}
+        <Image
+          src={court.images[0] || "/images/default-court.png"}
           alt={court.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.src =
-              "https://via.placeholder.com/300x200?text=" +
-              encodeURIComponent(court.name);
-          }}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
         />
-        <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
-          <FaStar size={12} /> {court.rating}
+        <div className="absolute top-3 left-3 bg-yellow-400 text-xs font-semibold px-2 py-1 rounded-full">
+          {getSportLabel(court.sport)}
+        </div>
+        <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
+          ⭐ {court.rating.toFixed(1)}
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 bg-green-50">
-        <h3 className="font-bold text-gray-900 mb-2">{court.name}</h3>
+      <div className="p-4">
+        <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">
+          {court.name}
+        </h3>
 
-        <p className="text-xs text-gray-600 mb-3">{court.availability}</p>
+        <p className="text-xs text-gray-600 mb-3">
+          {court.availability?.startTime} - {court.availability?.endTime}
+        </p>
 
-        {/* Info Row 1 */}
+        {/* Info Row */}
         <div className="flex gap-4 mb-3 text-xs text-gray-700">
           <div className="flex items-center gap-1">
             <FaMapMarkerAlt className="text-green-600" />
-            {court.location}
+            {court.location || "N/A"}
           </div>
           <div className="flex items-center gap-1">
             <FaUsers className="text-green-600" />
@@ -208,52 +69,80 @@ function CourtCard({ court }: { court: Court }) {
           </div>
         </div>
 
-        {/* Info Row 2 */}
-        <div className="flex justify-between items-end mb-3">
+        {/* Price & Button */}
+        <div className="flex justify-between items-end">
           <div>
             <p className="text-xs text-gray-600">Mulai dari</p>
             <p className="text-lg font-bold text-green-600">
-              Rp {court.price.toLocaleString("id-ID")}
+              Rp {formattedPrice}
             </p>
           </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded font-medium text-sm hover:bg-blue-700 transition">
-            Pesan
-          </button>
+          <Link href={`/detail/${court.id}`}>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded font-medium text-sm hover:bg-blue-700 transition">
+              Lihat Detail
+            </button>
+          </Link>
         </div>
       </div>
     </div>
   );
 }
-// --- End CourtCard Component ---
 
 export default function CariLapanganPage() {
+  const searchParams = useSearchParams();
+  const sportFromUrl = searchParams.get("sport") as SportType | null;
+
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [priceRange, setPriceRange] = useState("Semua");
-  const [capacity, setCapacity] = useState<string | null>(null);
-  const [environment, setEnvironment] = useState<string | null>(null);
+  const [selectedSport, setSelectedSport] = useState<SportType | null>(
+    sportFromUrl
+  );
+  const [priceRange, setPriceRange] = useState<string>("Semua");
+  const [selectedEnvironment, setSelectedEnvironment] =
+    useState<EnvironmentType | null>(null);
 
-  const filteredCourts = COURTS_DATA.filter((court) => {
-    const locationMatch =
-      !selectedLocation || court.location === selectedLocation;
-    const sportMatch = !selectedSport || court.sport === selectedSport;
-    const priceMatch =
-      priceRange === "Semua" ||
-      (priceRange === "100k-500k" &&
-        court.price >= 100000 &&
-        court.price <= 500000) ||
-      (priceRange === "500k-1jt" &&
-        court.price > 500000 &&
-        court.price <= 1000000);
+  // Build filters for useCourts
+  const filters = {
+    sport: selectedSport || undefined,
+    city: selectedLocation || undefined,
+    environment: selectedEnvironment || undefined,
+    minPrice:
+      priceRange === "100k-500k"
+        ? 100000
+        : priceRange === "500k-1jt"
+        ? 500000
+        : undefined,
+    maxPrice:
+      priceRange === "100k-500k"
+        ? 500000
+        : priceRange === "500k-1jt"
+        ? 1000000
+        : undefined,
+    status: "available" as const,
+  };
 
-    return locationMatch && sportMatch && priceMatch;
-  });
+  const { courts, loading, error } = useCourts(filters);
+
+  // Group courts by sport
+  const futsalCourts = courts.filter((c) => c.sport === "futsal");
+  const basketCourts = courts.filter((c) => c.sport === "basket");
+  const tenisCourts = courts.filter((c) => c.sport === "tenis");
+  const badmintonCourts = courts.filter((c) => c.sport === "badminton");
+  const voliCourts = courts.filter((c) => c.sport === "voli");
+
+  const handleApplyFilter = () => {
+    // Filter already applied via useCourts dependency
+    console.log("Filters applied:", filters);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <div className="flex-grow bg-gray-50 pt-20">
         <div className="container mx-auto px-4 py-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+            Cari Lapangan Olahraga
+          </h1>
+
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Sidebar Filter - Hidden di mobile, show di lg */}
             <div className="hidden lg:block lg:w-64 flex-shrink-0">
@@ -285,13 +174,13 @@ export default function CariLapanganPage() {
                         type="checkbox"
                         checked={selectedSport === sport}
                         onChange={() =>
-                          setSelectedSport(
-                            selectedSport === sport ? null : sport
-                          )
+                          setSelectedSport(selectedSport === sport ? null : sport)
                         }
                         className="w-4 h-4 text-green-600 rounded"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{sport}</span>
+                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                        {sport}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -317,74 +206,148 @@ export default function CariLapanganPage() {
                 </div>
 
                 <h3 className="font-bold text-gray-900 mb-4">LINGKUNGAN</h3>
-                <div className="space-y-2">
-                  {["Indoor", "Outdoor"].map((env) => (
+                <div className="space-y-2 mb-6">
+                  {(["indoor", "outdoor"] as EnvironmentType[]).map((env) => (
                     <label key={env} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={environment === env}
+                        checked={selectedEnvironment === env}
                         onChange={() =>
-                          setEnvironment(environment === env ? null : env)
+                          setSelectedEnvironment(
+                            selectedEnvironment === env ? null : env
+                          )
                         }
                         className="w-4 h-4 text-green-600 rounded"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{env}</span>
+                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                        {env}
+                      </span>
                     </label>
                   ))}
                 </div>
 
-                <button className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                  Filter
+                <button
+                  onClick={handleApplyFilter}
+                  className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+                >
+                  Terapkan Filter
                 </button>
               </div>
             </div>
 
-            {/* Main Content - Full width di mobile */}
+            {/* Main Content */}
             <div className="flex-1 w-full">
-              {/* Section 1: Lapangan Futsal Populer */}
-              <div className="mb-12">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                  Lapangan Futsal Populer ⚽
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {filteredCourts
-                    .filter((c) => c.sport === "Futsal")
-                    .slice(0, 3)
-                    .map((court) => (
-                      <CourtCard key={court.id} court={court} />
-                    ))}
+              {loading && (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+                  <p className="mt-4 text-gray-600">Memuat lapangan...</p>
                 </div>
-              </div>
+              )}
 
-              {/* Section 2: Lapangan Basket Populer */}
-              <div className="mb-12">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                  Lapangan Basket Populer 🏀
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {filteredCourts
-                    .filter((c) => c.sport === "Basket")
-                    .slice(0, 3)
-                    .map((court) => (
-                      <CourtCard key={court.id} court={court} />
-                    ))}
+              {error && (
+                <div className="text-center py-12">
+                  <p className="text-red-600">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    Coba Lagi
+                  </button>
                 </div>
-              </div>
+              )}
 
-              {/* Section 3: Lapangan Tenis Populer */}
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                  Lapangan Tenis Populer 🎾
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {filteredCourts
-                    .filter((c) => c.sport === "Tenis")
-                    .slice(0, 3)
-                    .map((court) => (
-                      <CourtCard key={court.id} court={court} />
-                    ))}
+              {!loading && !error && courts.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 text-lg">
+                    Tidak ada lapangan yang sesuai dengan filter Anda.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSelectedLocation(null);
+                      setSelectedSport(null);
+                      setPriceRange("Semua");
+                      setSelectedEnvironment(null);
+                    }}
+                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    Reset Filter
+                  </button>
                 </div>
-              </div>
+              )}
+
+              {!loading && !error && courts.length > 0 && (
+                <>
+                  {/* Lapangan Futsal */}
+                  {futsalCourts.length > 0 && (
+                    <div className="mb-12">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                        Lapangan Futsal ⚽ ({futsalCourts.length})
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        {futsalCourts.map((court) => (
+                          <CourtCardSearch key={court.id} court={court} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lapangan Basket */}
+                  {basketCourts.length > 0 && (
+                    <div className="mb-12">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                        Lapangan Basket 🏀 ({basketCourts.length})
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        {basketCourts.map((court) => (
+                          <CourtCardSearch key={court.id} court={court} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lapangan Tenis */}
+                  {tenisCourts.length > 0 && (
+                    <div className="mb-12">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                        Lapangan Tenis 🎾 ({tenisCourts.length})
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        {tenisCourts.map((court) => (
+                          <CourtCardSearch key={court.id} court={court} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lapangan Badminton */}
+                  {badmintonCourts.length > 0 && (
+                    <div className="mb-12">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                        Lapangan Badminton 🏸 ({badmintonCourts.length})
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        {badmintonCourts.map((court) => (
+                          <CourtCardSearch key={court.id} court={court} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lapangan Voli */}
+                  {voliCourts.length > 0 && (
+                    <div className="mb-12">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                        Lapangan Voli 🏐 ({voliCourts.length})
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        {voliCourts.map((court) => (
+                          <CourtCardSearch key={court.id} court={court} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
