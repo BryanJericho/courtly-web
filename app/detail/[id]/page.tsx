@@ -7,7 +7,7 @@ import Link from "next/link";
 import { FaMapMarkerAlt, FaUsers, FaClock, FaStar } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { getCourt, getToko } from "../../lib/firestore";
+import { getCourt, getToko, checkBookingConflict } from "../../lib/firestore";
 import { useAuth } from "../../lib/AuthContext";
 import type { Court, Toko } from "../../lib/types";
 import { collection, query, where, getDocs } from "firebase/firestore";
