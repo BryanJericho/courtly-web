@@ -27,6 +27,7 @@ export default function RegisterPage() {
         phone: '',
         password: '',
         confirmPassword: '',
+        role: 'user', // Default role: user
         agreedToTerms: false,
     });
     const [error, setError] = useState<string | null>(null);
@@ -67,23 +68,27 @@ export default function RegisterPage() {
             const fullName = `${formData.firstName} ${formData.lastName}`;
             await updateProfile(user, { displayName: fullName });
 
-            // Simpan data ke Firestore dengan role default 'user'
+            // Simpan data ke Firestore dengan role yang dipilih
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 phone: formData.phone,
-                role: 'user', // Default role
+                role: formData.role,
                 createdAt: new Date().toISOString(),
             });
 
             console.log('Pendaftaran berhasil!', user.uid);
             setSuccessMessage(true);
-            
-            // Redirect ke / setelah 2 detik
+
+            // Redirect berdasarkan role
             setTimeout(() => {
-                router.push('/');
+                if (formData.role === 'penjaga_lapangan') {
+                    router.push('/penjaga/dashboard');
+                } else {
+                    router.push('/');
+                }
             }, 2000);
 
         } catch (err: any) {
@@ -126,14 +131,20 @@ export default function RegisterPage() {
                     lastName: lastName,
                     email: user.email,
                     phone: '', // Nomor telepon harus diisi manual jika menggunakan Google Auth
-                    role: 'user', // Default role
+                    role: formData.role, // Gunakan role yang dipilih
                     createdAt: new Date().toISOString(),
                     provider: 'google'
                 });
             }
 
             console.log('Google Sign-in/up berhasil!', user.uid);
-            router.push('/'); 
+
+            // Redirect berdasarkan role
+            if (formData.role === 'penjaga_lapangan') {
+                router.push('/penjaga/dashboard');
+            } else {
+                router.push('/');
+            } 
 
         } catch (err: any) {
             console.error("Error Google Auth:", err.code, err.message);
@@ -231,7 +242,7 @@ export default function RegisterPage() {
                             <div>
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi</label>
                                 <div className="relative">
-                                    <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" required 
+                                    <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" required
                                         value={formData.confirmPassword} onChange={handleChange}
                                         placeholder="Ulangi kata sandi"
                                         className="w-full px-2.5 py-2 text-sm text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-9 placeholder-gray-400"
@@ -239,6 +250,43 @@ export default function RegisterPage() {
                                     <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-700">
                                         {showConfirmPassword ? (<EyeSlashIcon className="h-4 w-4" />) : (<EyeIcon className="h-4 w-4" />)}
                                     </button>
+                                </div>
+                            </div>
+
+                            {/* Pilihan Role */}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-2">Daftar Sebagai</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <label className={`flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition ${formData.role === 'user' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value="user"
+                                            checked={formData.role === 'user'}
+                                            onChange={handleChange}
+                                            className="sr-only"
+                                        />
+                                        <div className="text-center">
+                                            <div className="text-2xl mb-1">👤</div>
+                                            <div className="text-sm font-semibold text-gray-900">User</div>
+                                            <div className="text-xs text-gray-600">Booking lapangan</div>
+                                        </div>
+                                    </label>
+                                    <label className={`flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition ${formData.role === 'penjaga_lapangan' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value="penjaga_lapangan"
+                                            checked={formData.role === 'penjaga_lapangan'}
+                                            onChange={handleChange}
+                                            className="sr-only"
+                                        />
+                                        <div className="text-center">
+                                            <div className="text-2xl mb-1">🏟</div>
+                                            <div className="text-sm font-semibold text-gray-900">Penjaga</div>
+                                            <div className="text-xs text-gray-600">Kelola lapangan</div>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 
