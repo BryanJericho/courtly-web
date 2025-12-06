@@ -9,7 +9,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 // 💡 Tambah fungsi Google Auth dan getDoc untuk cek Firestore
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore'; 
 
 import { auth, db } from '../../src/firebaseConfig'; 
@@ -79,17 +79,16 @@ export default function RegisterPage() {
                 createdAt: new Date().toISOString(),
             });
 
+            // Kirim email verifikasi
+            await sendEmailVerification(user);
+
             console.log('Pendaftaran berhasil!', user.uid);
             setSuccessMessage(true);
 
-            // Redirect berdasarkan role
+            // Redirect ke homepage setelah registrasi
             setTimeout(() => {
-                if (formData.role === 'penjaga_lapangan') {
-                    router.push('/penjaga/dashboard');
-                } else {
-                    router.push('/');
-                }
-            }, 2000);
+                router.push('/');
+            }, 3000);
 
         } catch (err: any) {
             console.error("Error:", err.code, err.message);
@@ -313,7 +312,8 @@ export default function RegisterPage() {
                             {/* Success Message */}
                             {successMessage && (
                                 <div className="p-3 rounded-md bg-green-50 border border-green-200">
-                                    <p className="text-sm font-medium text-green-800">✓ Pendaftaran berhasil! Mengalihkan...</p>
+                                    <p className="text-sm font-medium text-green-800">✓ Pendaftaran berhasil!</p>
+                                    <p className="text-xs text-green-700 mt-1">Silakan cek email Anda untuk verifikasi. Setelah verifikasi, Anda bisa login.</p>
                                 </div>
                             )}
 
