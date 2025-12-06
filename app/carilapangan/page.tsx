@@ -91,6 +91,7 @@ function CourtCardSearch({ court }: { court: Court }) {
 export default function CariLapanganPage() {
   const searchParams = useSearchParams();
   const sportFromUrl = searchParams.get("sport") as SportType | null;
+  const searchFromUrl = searchParams.get("search") || "";
 
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedSport, setSelectedSport] = useState<SportType | null>(
@@ -99,6 +100,7 @@ export default function CariLapanganPage() {
   const [priceRange, setPriceRange] = useState<string>("Semua");
   const [selectedEnvironment, setSelectedEnvironment] =
     useState<EnvironmentType | null>(null);
+  const [searchQuery, setSearchQuery] = useState(searchFromUrl);
 
   // Build filters for useCourts
   const filters = {
@@ -122,12 +124,25 @@ export default function CariLapanganPage() {
 
   const { courts, loading, error } = useCourts(filters);
 
+  // Filter courts based on search query
+  const filteredCourts = courts.filter((court) => {
+    if (!searchQuery.trim()) return true;
+
+    const query = searchQuery.toLowerCase();
+    const matchName = court.name.toLowerCase().includes(query);
+    const matchSport = court.sport.toLowerCase().includes(query);
+    const matchLocation = court.location?.toLowerCase().includes(query);
+    const matchDescription = court.description?.toLowerCase().includes(query);
+
+    return matchName || matchSport || matchLocation || matchDescription;
+  });
+
   // Group courts by sport
-  const futsalCourts = courts.filter((c) => c.sport === "futsal");
-  const basketCourts = courts.filter((c) => c.sport === "basket");
-  const tenisCourts = courts.filter((c) => c.sport === "tenis");
-  const badmintonCourts = courts.filter((c) => c.sport === "badminton");
-  const voliCourts = courts.filter((c) => c.sport === "voli");
+  const futsalCourts = filteredCourts.filter((c) => c.sport === "futsal");
+  const basketCourts = filteredCourts.filter((c) => c.sport === "basket");
+  const tenisCourts = filteredCourts.filter((c) => c.sport === "tenis");
+  const badmintonCourts = filteredCourts.filter((c) => c.sport === "badminton");
+  const voliCourts = filteredCourts.filter((c) => c.sport === "voli");
 
   const handleApplyFilter = () => {
     // Filter already applied via useCourts dependency
@@ -139,9 +154,32 @@ export default function CariLapanganPage() {
       <Header />
       <div className="flex-grow bg-gray-50 pt-20">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
             Cari Lapangan Olahraga
           </h1>
+
+          {/* Search Info */}
+          {searchQuery && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Menampilkan hasil pencarian untuk: <span className="font-bold">"{searchQuery}"</span>
+                {filteredCourts.length > 0 ? (
+                  <span> - {filteredCourts.length} lapangan ditemukan</span>
+                ) : (
+                  <span> - Tidak ada hasil yang ditemukan</span>
+                )}
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  window.history.replaceState({}, "", "/carilapangan");
+                }}
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium mt-1"
+              >
+                × Hapus pencarian
+              </button>
+            </div>
+          )}
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Sidebar Filter - Hidden di mobile, show di lg */}
