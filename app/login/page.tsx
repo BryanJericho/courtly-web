@@ -49,8 +49,21 @@ export default function LoginPage() {
         password
       );
 
+      // Ambil role user dari Firestore
+      const userRef = doc(db, "users", userCredential.user.uid);
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.data();
+
       console.log('Login Berhasil! User:', userCredential.user.uid);
-      router.push('/'); 
+
+      // Redirect berdasarkan role
+      if (userData?.role === 'penjaga_lapangan') {
+        router.push('/penjaga/dashboard');
+      } else if (userData?.role === 'super_admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/');
+      } 
 
     } catch (err: any) {
       console.error("Error login:", err.code, err.message);
@@ -99,15 +112,27 @@ export default function LoginPage() {
                 firstName: firstName,
                 lastName: lastName,
                 email: user.email,
-                phone: userDoc.data()?.phone || '', // Jika pendaftaran via Google, phone biasanya kosong
-                role: 'user', // Default role
+                phone: '', // Jika pendaftaran via Google, phone biasanya kosong
+                role: 'user', // Default role untuk Google Sign-in
                 createdAt: new Date().toISOString(),
                 provider: 'google'
             });
         }
 
+        // Ambil ulang data untuk mendapatkan role
+        const userDocRefresh = await getDoc(userRef);
+        const userData = userDocRefresh.data();
+
         console.log('Google Sign-in Berhasil! User:', user.uid);
-        router.push('/'); 
+
+        // Redirect berdasarkan role
+        if (userData?.role === 'penjaga_lapangan') {
+            router.push('/penjaga/dashboard');
+        } else if (userData?.role === 'super_admin') {
+            router.push('/admin/dashboard');
+        } else {
+            router.push('/');
+        } 
 
     } catch (err: any) {
         console.error("Error Google Auth:", err.code, err.message);
