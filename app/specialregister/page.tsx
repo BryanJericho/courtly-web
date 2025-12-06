@@ -27,7 +27,7 @@ export default function SpecialRegisterPage() {
       value: "penjaga_lapangan" as UserRole,
       label: "Penjaga Lapangan",
       description: "Kelola toko dan lapangan olahraga Anda",
-      icon: "🏟️",
+      icon: "🏟",
       color: "from-blue-500 to-blue-600",
     },
     {
@@ -133,7 +133,7 @@ export default function SpecialRegisterPage() {
                 onClick={() => setSelectedRole(role.value)}
                 className="group relative bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`}></div>
+                <div className={absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity}></div>
                 <div className="relative">
                   <div className="text-6xl mb-4">{role.icon}</div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -141,7 +141,7 @@ export default function SpecialRegisterPage() {
                   </h3>
                   <p className="text-gray-600">{role.description}</p>
                   <div className="mt-4 flex items-center justify-center">
-                    <span className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${role.color} text-white font-medium`}>
+                    <span className={inline-block px-4 py-2 rounded-full bg-gradient-to-r ${role.color} text-white font-medium}>
                       Pilih Role Ini
                     </span>
                   </div>
@@ -191,7 +191,7 @@ export default function SpecialRegisterPage() {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                     placeholder="John"
                   />
                 </div>
@@ -206,7 +206,7 @@ export default function SpecialRegisterPage() {
                     value={formData.lastName}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                     placeholder="Doe"
                   />
                 </div>
@@ -222,7 +222,7 @@ export default function SpecialRegisterPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                   placeholder="john.doe@example.com"
                 />
               </div>
@@ -237,7 +237,7 @@ export default function SpecialRegisterPage() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                   placeholder="081234567890"
                 />
               </div>
@@ -253,7 +253,7 @@ export default function SpecialRegisterPage() {
                     value={formData.password}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                     placeholder="Minimal 6 karakter"
                   />
                 </div>
@@ -268,7 +268,7 @@ export default function SpecialRegisterPage() {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                     placeholder="Ulangi password"
                   />
                 </div>
