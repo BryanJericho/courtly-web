@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../src/firebaseConfig";
 import Link from "next/link";
@@ -19,6 +19,7 @@ export default function SpecialRegisterPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -62,8 +63,15 @@ export default function SpecialRegisterPage() {
         createdAt: new Date().toISOString(),
       });
 
-      // Redirect to penjaga dashboard
-      router.push("/penjaga/dashboard");
+      // Kirim email verifikasi
+      await sendEmailVerification(userCredential.user);
+
+      setSuccessMessage(true);
+
+      // Redirect ke homepage setelah registrasi
+      setTimeout(() => {
+        router.push("/");
+      }, 3000);
     } catch (err: any) {
       console.error("Registration error:", err);
       if (err.code === "auth/email-already-in-use") {
@@ -108,6 +116,13 @@ export default function SpecialRegisterPage() {
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
                 {error}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-medium text-green-800">✓ Pendaftaran berhasil!</p>
+                <p className="text-xs text-green-700 mt-1">Silakan cek email Anda untuk verifikasi. Setelah verifikasi, Anda bisa login.</p>
               </div>
             )}
 

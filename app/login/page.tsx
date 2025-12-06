@@ -50,6 +50,14 @@ export default function LoginPage() {
         password
       );
 
+      // Cek apakah email sudah diverifikasi
+      if (!userCredential.user.emailVerified) {
+        setError('Silakan verifikasi email Anda terlebih dahulu. Cek inbox atau folder spam email Anda.');
+        await auth.signOut(); // Logout otomatis jika email belum diverifikasi
+        setLoading(false);
+        return;
+      }
+
       // Ambil role user dari Firestore
       const userRef = doc(db, "users", userCredential.user.uid);
       const userDoc = await getDoc(userRef);
@@ -65,12 +73,8 @@ export default function LoginPage() {
 
       console.log('Login Berhasil! User:', userCredential.user.uid);
 
-      // Redirect berdasarkan role
-      if (selectedRole === 'penjaga_lapangan') {
-        router.push('/penjaga/dashboard');
-      } else {
-        router.push('/');
-      } 
+      // Redirect ke homepage
+      router.push('/'); 
 
     } catch (err: any) {
       console.error("Error login:", err.code, err.message);
@@ -140,12 +144,8 @@ export default function LoginPage() {
 
         console.log('Google Sign-in Berhasil! User:', user.uid);
 
-        // Redirect berdasarkan role yang dipilih
-        if (selectedRole === 'penjaga_lapangan') {
-            router.push('/penjaga/dashboard');
-        } else {
-            router.push('/');
-        } 
+        // Redirect ke homepage (Google accounts are pre-verified)
+        router.push('/'); 
 
     } catch (err: any) {
         console.error("Error Google Auth:", err.code, err.message);
