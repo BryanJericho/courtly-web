@@ -6,11 +6,9 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../src/firebaseConfig";
 import Link from "next/link";
-import type { UserRole } from "../lib/types";
 
 export default function SpecialRegisterPage() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,23 +20,6 @@ export default function SpecialRegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const roles = [
-    {
-      value: "penjaga_lapangan" as UserRole,
-      label: "Penjaga Lapangan",
-      description: "Kelola toko dan lapangan olahraga Anda",
-      icon: "🏟",
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      value: "super_admin" as UserRole,
-      label: "Super Admin",
-      description: "Akses penuh untuk manajemen sistem",
-      icon: "👑",
-      color: "from-purple-500 to-purple-600",
-    },
-  ];
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -49,11 +30,6 @@ export default function SpecialRegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (!selectedRole) {
-      setError("Silakan pilih role terlebih dahulu");
-      return;
-    }
 
     if (formData.password !== formData.confirmPassword) {
       setError("Password tidak cocok");
@@ -75,25 +51,19 @@ export default function SpecialRegisterPage() {
         formData.password
       );
 
-      // Create user document in Firestore with selected role
+      // Create user document in Firestore as penjaga_lapangan
       await setDoc(doc(db, "users", userCredential.user.uid), {
         uid: userCredential.user.uid,
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        role: selectedRole,
+        role: "penjaga_lapangan",
         createdAt: new Date().toISOString(),
       });
 
-      // Redirect based on role
-      if (selectedRole === "super_admin") {
-        router.push("/admin/dashboard");
-      } else if (selectedRole === "penjaga_lapangan") {
-        router.push("/penjaga/dashboard");
-      } else {
-        router.push("/");
-      }
+      // Redirect to penjaga dashboard
+      router.push("/penjaga/dashboard");
     } catch (err: any) {
       console.error("Registration error:", err);
       if (err.code === "auth/email-already-in-use") {
@@ -117,61 +87,23 @@ export default function SpecialRegisterPage() {
             Courtly
           </Link>
           <h2 className="text-3xl font-extrabold text-gray-900">
-            Registrasi Special
+            Registrasi Penjaga Lapangan
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Pilih role dan lengkapi data Anda
+            Daftar untuk mengelola toko dan lapangan olahraga Anda
           </p>
         </div>
 
-        {/* Role Selection */}
-        {!selectedRole ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {roles.map((role) => (
-              <button
-                key={role.value}
-                onClick={() => setSelectedRole(role.value)}
-                className="group relative bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <div className={absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity}></div>
-                <div className="relative">
-                  <div className="text-6xl mb-4">{role.icon}</div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {role.label}
-                  </h3>
-                  <p className="text-gray-600">{role.description}</p>
-                  <div className="mt-4 flex items-center justify-center">
-                    <span className={inline-block px-4 py-2 rounded-full bg-gradient-to-r ${role.color} text-white font-medium}>
-                      Pilih Role Ini
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        ) : (
-          // Registration Form
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            {/* Selected Role Badge */}
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className="text-3xl">
-                  {roles.find((r) => r.value === selectedRole)?.icon}
-                </span>
-                <div>
-                  <p className="text-sm text-gray-500">Role yang dipilih:</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {roles.find((r) => r.value === selectedRole)?.label}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedRole(null)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Ganti Role
-              </button>
+        {/* Registration Form - Langsung tampilkan tanpa role selection */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Badge Info */}
+          <div className="mb-6 flex items-center space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <span className="text-3xl">🏟</span>
+            <div>
+              <p className="text-sm text-gray-600">Mendaftar sebagai:</p>
+              <p className="text-lg font-bold text-gray-900">Penjaga Lapangan</p>
             </div>
+          </div>
 
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
@@ -283,16 +215,15 @@ export default function SpecialRegisterPage() {
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Sudah punya akun?{" "}
-                <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
-                  Login di sini
-                </Link>
-              </p>
-            </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Sudah punya akun?{" "}
+              <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
+                Login di sini
+              </Link>
+            </p>
           </div>
-        )}
+        </div>
 
         {/* Back to Home */}
         <div className="text-center">

@@ -18,6 +18,7 @@ const Header: React.FC = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleLogout = async () => {
     try {
@@ -25,6 +26,14 @@ const Header: React.FC = () => {
       router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/carilapangan?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
     }
   };
 
@@ -93,14 +102,16 @@ const Header: React.FC = () => {
         <div className="flex-1"></div>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 mr-3">
+        <form onSubmit={handleSearch} className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 mr-3">
           <FaSearch className="text-gray-500 mr-2" />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari lapangan..."
             className="bg-transparent outline-none text-gray-700 placeholder-gray-500 w-48"
           />
-        </div>
+        </form>
 
         {/* Kontainer Kanan: Auth Buttons atau Profile Menu */}
         <div className="flex space-x-3 items-center">
