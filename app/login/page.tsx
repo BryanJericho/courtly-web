@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'user' | 'penjaga_lapangan'>('user');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -54,13 +55,19 @@ export default function LoginPage() {
       const userDoc = await getDoc(userRef);
       const userData = userDoc.data();
 
+      // Validasi role yang dipilih dengan role yang tersimpan
+      if (userData?.role !== selectedRole) {
+        setError(`Akun tidak terdaftar sebagai ${selectedRole === 'user' ? 'User' : 'Penjaga Lapangan'}. Silakan pilih role yang sesuai atau daftar terlebih dahulu.`);
+        await auth.signOut(); // Logout otomatis jika role tidak sesuai
+        setLoading(false);
+        return;
+      }
+
       console.log('Login Berhasil! User:', userCredential.user.uid);
 
       // Redirect berdasarkan role
-      if (userData?.role === 'penjaga_lapangan') {
+      if (selectedRole === 'penjaga_lapangan') {
         router.push('/penjaga/dashboard');
-      } else if (userData?.role === 'super_admin') {
-        router.push('/admin/dashboard');
       } else {
         router.push('/');
       } 
@@ -123,13 +130,19 @@ export default function LoginPage() {
         const userDocRefresh = await getDoc(userRef);
         const userData = userDocRefresh.data();
 
+        // Validasi role untuk user yang sudah terdaftar sebelumnya
+        if (userDoc.exists() && userData?.role !== selectedRole) {
+            setError(`Akun tidak terdaftar sebagai ${selectedRole === 'user' ? 'User' : 'Penjaga Lapangan'}. Silakan pilih role yang sesuai.`);
+            await auth.signOut();
+            setLoading(false);
+            return;
+        }
+
         console.log('Google Sign-in Berhasil! User:', user.uid);
 
-        // Redirect berdasarkan role
-        if (userData?.role === 'penjaga_lapangan') {
+        // Redirect berdasarkan role yang dipilih
+        if (selectedRole === 'penjaga_lapangan') {
             router.push('/penjaga/dashboard');
-        } else if (userData?.role === 'super_admin') {
-            router.push('/admin/dashboard');
         } else {
             router.push('/');
         } 
@@ -203,6 +216,43 @@ export default function LoginPage() {
                     <EyeIcon className="h-5 w-5" />
                   )}
                 </button>
+              </div>
+            </div>
+
+            {/* Pilihan Role */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Login Sebagai</label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className={`flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition ${selectedRole === 'user' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                  <input
+                    type="radio"
+                    name="role"
+                    value="user"
+                    checked={selectedRole === 'user'}
+                    onChange={(e) => setSelectedRole(e.target.value as 'user' | 'penjaga_lapangan')}
+                    className="sr-only"
+                  />
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">👤</div>
+                    <div className="text-sm font-semibold text-gray-900">User</div>
+                    <div className="text-xs text-gray-600">Booking lapangan</div>
+                  </div>
+                </label>
+                <label className={`flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition ${selectedRole === 'penjaga_lapangan' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                  <input
+                    type="radio"
+                    name="role"
+                    value="penjaga_lapangan"
+                    checked={selectedRole === 'penjaga_lapangan'}
+                    onChange={(e) => setSelectedRole(e.target.value as 'user' | 'penjaga_lapangan')}
+                    className="sr-only"
+                  />
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🏟</div>
+                    <div className="text-sm font-semibold text-gray-900">Penjaga</div>
+                    <div className="text-xs text-gray-600">Kelola lapangan</div>
+                  </div>
+                </label>
               </div>
             </div>
 
