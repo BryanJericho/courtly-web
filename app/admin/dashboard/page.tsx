@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
-import { getAllUsers, getAllTokos, getAllCourts, approveToko } from "../../lib/firestore";
+import { getAllUsers, getAllTokos, getAllCourts, approveToko, deleteToko } from "../../lib/firestore";
 import type { User, Toko, Court } from "../../lib/types";
 import RoleGuard from "../../components/RoleGuard";
 import Header from "../../components/Header";
@@ -16,6 +16,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "tokos" | "users">("overview");
   const [processingTokoId, setProcessingTokoId] = useState<string | null>(null);
+  const [deletingTokoId, setDeletingTokoId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -58,6 +59,26 @@ export default function AdminDashboard() {
       alert("Gagal menyetujui toko");
     } finally {
       setProcessingTokoId(null);
+    }
+  };
+
+  const handleDeleteToko = async (tokoId: string, tokoName: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus toko "${tokoName}"? Tindakan ini tidak dapat dibatalkan.`)) {
+      return;
+    }
+
+    try {
+      setDeletingTokoId(tokoId);
+      await deleteToko(tokoId);
+
+      // Update local state
+      setTokos(tokos.filter(t => t.id !== tokoId));
+      alert("Toko berhasil dihapus!");
+    } catch (error) {
+      console.error("Error deleting toko:", error);
+      alert("Gagal menghapus toko. Silakan coba lagi.");
+    } finally {
+      setDeletingTokoId(null);
     }
   };
 
@@ -356,18 +377,36 @@ export default function AdminDashboard() {
                                 {getStatusBadge(toko.status)}
                               </td>
                               <td className="px-6 py-4 text-sm">
-                                {toko.status === "pending_approval" && (
-                                  <button
-                                    onClick={() => handleApproveToko(toko.id)}
-                                    disabled={processingTokoId === toko.id}
-                                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition font-medium disabled:opacity-50"
-                                  >
-                                    {processingTokoId === toko.id ? "..." : "Approve"}
-                                  </button>
-                                )}
-                                {toko.status === "active" && (
-                                  <span className="text-green-600 font-medium">✓ Approved</span>
-                                )}
+                                <div className="flex items-center gap-2">
+                                  {toko.status === "pending_approval" && (
+                                    <button
+                                      onClick={() => handleApproveToko(toko.id)}
+                                      disabled={processingTokoId === toko.id}
+                                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition font-medium disabled:opacity-50"
+                                    >
+                                      {processingTokoId === toko.id ? "..." : "Approve"}
+                                    </button>
+                                  )}
+                                  {toko.status === "active" && (
+                                    <>
+                                      <span className="text-green-600 font-medium mr-2">✓ Approved</span>
+                                      <Link
+                                        href={`/admin/toko/edit/${toko.id}`}
+                                        className="text-blue-600 hover:text-blue-700 font-medium"
+                                      >
+                                        Edit
+                                      </Link>
+                                      <span className="text-gray-300">|</span>
+                                      <button
+                                        onClick={() => handleDeleteToko(toko.id, toko.name)}
+                                        disabled={deletingTokoId === toko.id}
+                                        className="text-red-600 hover:text-red-700 font-medium disabled:opacity-50"
+                                      >
+                                        {deletingTokoId === toko.id ? "..." : "Hapus"}
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           ))}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
-import { getTokoByPenjaga, getCourtsByToko, getTokoBookings, updateBooking, getCourt } from "../../lib/firestore";
+import { getTokoByPenjaga, getCourtsByToko, getTokoBookings, updateBooking, getCourt, deleteCourt } from "../../lib/firestore";
 import type { Toko, Court, Booking } from "../../lib/types";
 import RoleGuard from "../../components/RoleGuard";
 import Header from "../../components/Header";
@@ -20,6 +20,7 @@ export default function PenjagaDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "courts" | "bookings">("overview");
   const [processingBookingId, setProcessingBookingId] = useState<string | null>(null);
+  const [deletingCourtId, setDeletingCourtId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -143,6 +144,26 @@ export default function PenjagaDashboard() {
     const [hours, minutes] = startTime.split(":").map(Number);
     const endHours = hours + duration;
     return `${endHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  };
+
+  const handleDeleteCourt = async (courtId: string, courtName: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus lapangan "${courtName}"? Tindakan ini tidak dapat dibatalkan.`)) {
+      return;
+    }
+
+    try {
+      setDeletingCourtId(courtId);
+      await deleteCourt(courtId);
+
+      // Update local state
+      setCourts(courts.filter(c => c.id !== courtId));
+      alert("Lapangan berhasil dihapus!");
+    } catch (error) {
+      console.error("Error deleting court:", error);
+      alert("Gagal menghapus lapangan. Silakan coba lagi.");
+    } finally {
+      setDeletingCourtId(null);
+    }
   };
 
   const pendingBookings = bookings.filter((b) => b.status === "pending");
@@ -422,6 +443,13 @@ export default function PenjagaDashboard() {
                                 >
                                   Edit
                                 </Link>
+                                <button
+                                  onClick={() => handleDeleteCourt(court.id, court.name)}
+                                  disabled={deletingCourtId === court.id}
+                                  className="text-red-600 hover:text-red-700 font-medium disabled:opacity-50"
+                                >
+                                  {deletingCourtId === court.id ? "..." : "Hapus"}
+                                </button>
                               </td>
                             </tr>
                           ))}
