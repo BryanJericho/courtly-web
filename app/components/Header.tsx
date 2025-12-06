@@ -8,6 +8,7 @@ import { useAuth } from "../lib/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../src/firebaseConfig";
 import { useRouter } from "next/navigation";
+import { FaSearch } from "react-icons/fa";
 
 // Konstanta untuk warna gradien
 const GRADIENT_FROM = "#66C05A";
@@ -85,14 +86,17 @@ const Header: React.FC = () => {
                 Dashboard
               </Link>
             )}
-
-            <Link
-              href="/faq"
-              className="text-gray-800 hover:text-green-600 hidden sm:block"
-            >
-              FAQ
-            </Link>
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 mx-4">
+          <FaSearch className="text-gray-500 mr-2" />
+          <input
+            type="text"
+            placeholder="Cari lapangan..."
+            className="bg-transparent outline-none text-gray-700 placeholder-gray-500 w-48"
+          />
         </div>
 
         {/* Kontainer Kanan: Auth Buttons atau Profile Menu */}
@@ -152,7 +156,7 @@ const Header: React.FC = () => {
                     Edit Profil
                   </Link>
 
-                  {user.role === "user" && (
+                  {(user.role === "user" || !user.role || (user.role !== "penjaga_lapangan" && user.role !== "super_admin")) && (
                     <Link
                       href="/bookings"
                       onClick={() => setIsDropdownOpen(false)}
