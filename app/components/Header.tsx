@@ -89,8 +89,11 @@ const Header: React.FC = () => {
           </div>
         </div>
 
+        {/* Spacer to push search and profile to the right */}
+        <div className="flex-1"></div>
+
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 mx-4">
+        <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 mr-3">
           <FaSearch className="text-gray-500 mr-2" />
           <input
             type="text"
