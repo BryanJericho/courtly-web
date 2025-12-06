@@ -1,31 +1,53 @@
 // components/HeroSection.tsx
 
-"use client"; 
-import React, { useState } from "react";
-import { FaMapMarkerAlt, FaFutbol } from "react-icons/fa"; 
+"use client";
+import React, { useState, useEffect } from "react";
+import { FaMapMarkerAlt, FaFutbol } from "react-icons/fa";
 
 export default function HeroSection() {
   const [selectedSport, setSelectedSport] = useState("Lapang Sepak Bola");
   const [selectedLocation, setSelectedLocation] = useState("Rappocini");
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Path gambar dari folder public.
-  const heroStyle = {
-    // PASTIKAN FILE ADA DI public/images/hero-background.png
-    backgroundImage: "url('/img/hero-background.png')", 
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  };
-  
-  // Hitung padding top yang cukup tinggi (misalnya setara pt-24 atau pt-28)
+  // Array gambar untuk carousel
+  const slides = [
+    "/img/futsal.webp",
+    "/img/badminton.jpg",
+    "/img/tennis.jpeg",
+  ];
+
+  // Auto slide setiap 5 detik
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
   return (
-    <section
-      // Gunakan kelas padding top yang valid (pt-24 atau sejenisnya)
-      className={`relative h-[450px] md:h-[550px] mt-20`}
-      style={heroStyle}
-    >
-      
-      {/* 1. OVERLAY GELAP (Dipertahankan) */}
-      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+    <section className="relative h-[450px] md:h-[550px] mt-20 overflow-hidden">
+      {/* Carousel Images */}
+      <div
+        className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+      >
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className="min-w-full h-full"
+            style={{
+              backgroundImage: `url('${slide}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Overlay */}
+      <div className="absolute inset-0  bg-opacity-20"></div>
 
       {/* 2. Kontainer Utama untuk Teks dan Kontrol */}
       <div 
@@ -62,12 +84,18 @@ export default function HeroSection() {
           </button>
         </div>
 
-        {/* Indikator Carousel (Dots) */}
-        {/* Hapus mx-auto agar dots kembali ke kiri (justify-start) */}
-        <div className="flex space-x-1 mt-4 justify-start mx-auto">
-          <span className="w-2 h-2 bg-white opacity-100 rounded-full"></span>
-          <span className="w-2 h-2 bg-white opacity-50 rounded-full"></span>
-          <span className="w-2 h-2 bg-white opacity-50 rounded-full"></span>
+        {/* Indikator Carousel (Dots) - Interactive */}
+        <div className="flex space-x-2 mt-4 justify-start lg:pl-14">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 rounded-full transition-opacity ${
+                currentSlide === index ? "bg-white opacity-100" : "bg-white opacity-50"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>
