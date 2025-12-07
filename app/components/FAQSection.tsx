@@ -39,32 +39,32 @@ const FAQSection: React.FC = () => {
     {
       question: "Apa itu sistem reservasi lapangan online Courtly?",
       answer:
-        "Courtly. adalah  sistem reservasi lapangan online berupa platform berbasis website yang memungkinkan pengguna untuk memesan lapangan olahraga (futsal, badminton, basket, voli, tenis, mini soccer, dll). Secara mudah melalui internet. Pengguna dapat melihat jadwal ketersediaan, memilih jam, melakukan pembayaran, serta menerima bukti reservasi tanpa perlu datang langsung ke lokasi.",
+        "Courtly adalah platform reservasi lapangan olahraga berbasis website yang memudahkan Anda memesan lapangan futsal, badminton, basket, voli, tenis, dan mini soccer secara online. Dengan Courtly, Anda dapat melihat jadwal ketersediaan secara real-time, memilih waktu yang sesuai, melakukan pembayaran, dan menerima bukti reservasi—semuanya tanpa perlu datang langsung ke lokasi.",
     },
     {
-      question: "Apa saja manfaat menggunakan sistem Courtly.?",
+      question: "Apa saja manfaat menggunakan sistem Courtly?",
       answer:
-        "- Praktis: Pemesanan bisa dilakukan kapan saja, 24/7. Transparan: Pengguna dapat melihat jadwal lapangan secara real-time.",
+        "Courtly memberikan kemudahan maksimal dalam reservasi lapangan: (1) Praktis - pesan kapan saja 24/7 dari mana saja, (2) Transparan - lihat jadwal ketersediaan lapangan secara real-time, (3) Cepat - proses booking hanya dalam hitungan menit, (4) Aman - sistem pembayaran yang terjamin keamanannya, dan (5) Efisien - tidak perlu antri atau datang langsung ke lokasi.",
     },
     {
-      question: "Siapa saja yang bisa menggunakan Courtly.?",
-      answer: "- Individu (pemain casual).",
+      question: "Siapa saja yang bisa menggunakan Courtly?",
+      answer: "Courtly dapat digunakan oleh siapa saja! Baik Anda pemain casual yang ingin olahraga santai, komunitas atau klub olahraga yang rutin latihan, maupun penyelenggara event atau turnamen. Courtly dirancang untuk memenuhi kebutuhan reservasi lapangan semua kalangan dengan mudah dan praktis.",
     },
     {
       question: "Apa saja jenis lapangan yang bisa dipesan?",
-      answer: "Tergantung pengelola, namun biasanya termasuk:",
+      answer: "Courtly menyediakan berbagai jenis lapangan olahraga sesuai kebutuhan Anda, termasuk Lapangan Futsal, Lapangan Badminton, Lapangan Basket, Lapangan Voli, Lapangan Tenis, dan Mini Soccer. Ketersediaan jenis lapangan dapat bervariasi tergantung pada lokasi dan pengelola lapangan yang terdaftar di platform kami.",
     },
     {
       question: "Bagaimana cara melakukan reservasi lapangan?",
-      answer: "- Masuk ke halaman utama website.",
+      answer: "Sangat mudah! (1) Buka website Courtly dan login ke akun Anda, (2) Pilih jenis olahraga dan lokasi yang diinginkan, (3) Lihat jadwal ketersediaan lapangan, (4) Pilih tanggal, waktu, dan durasi bermain, (5) Lakukan pembayaran melalui metode yang tersedia, (6) Terima konfirmasi booking dan bukti reservasi via email. Selesai! Anda siap bermain.",
     },
     {
       question: "Apakah saya harus membuat akun?",
-      answer: "Tergantung pengaturan pengelola.",
+      answer: "Ya, Anda perlu membuat akun untuk melakukan reservasi di Courtly. Proses registrasi sangat cepat dan mudah—hanya perlu email dan password. Dengan memiliki akun, Anda dapat melihat riwayat booking, mengelola reservasi yang akan datang, dan mendapatkan notifikasi penting terkait pemesanan Anda.",
     },
     {
       question: "Apa saja metode pembayaran yang tersedia?",
-      answer: "Biasanya meliputi:",
+      answer: "Courtly menyediakan berbagai metode pembayaran untuk kemudahan Anda: Transfer Bank (BCA, Mandiri, BNI, BRI), E-Wallet (GoPay, OVO, Dana, ShopeePay), Virtual Account, dan QRIS. Semua transaksi dijamin aman dan terenkripsi. Setelah pembayaran dikonfirmasi, Anda akan langsung menerima bukti reservasi.",
     },
   ];
 
