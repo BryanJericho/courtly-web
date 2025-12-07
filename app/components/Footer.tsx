@@ -1,6 +1,7 @@
 // components/Footer.tsx
 import React from "react";
 import Link from "next/link";
+import { FaInstagram, FaFacebook, FaTwitter } from "react-icons/fa";
 
 const Footer: React.FC = () => {
   return (
@@ -129,35 +130,33 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Kolom 4: Sosial Media (Jika ada di desain asli) */}
+          {/* Kolom 4: Sosial Media */}
           <div className="col-span-2 md:col-span-1">
             <h4 className="text-lg font-semibold mb-4">Ikuti Kami</h4>
-            <div className="flex space-x-3">
-              {/* Tempat untuk ikon sosial media (misal: Facebook, Instagram, Twitter) */}
+            <div className="flex space-x-4">
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-black hover:text-green-500 text-2xl"
+                className="text-black hover:text-green-500 transition-colors"
               >
-                {/* Ganti dengan ikon SVG/Font Awesome/Lucide */}
-                📸
+                <FaInstagram size={24} />
               </a>
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-black hover:text-green-500 text-2xl"
+                className="text-black hover:text-green-500 transition-colors"
               >
-                📘
+                <FaFacebook size={24} />
               </a>
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-black hover:text-green-500 text-2xl"
+                className="text-black hover:text-green-500 transition-colors"
               >
-                🐦
+                <FaTwitter size={24} />
               </a>
             </div>
           </div>
@@ -169,7 +168,7 @@ const Footer: React.FC = () => {
             &copy; {new Date().getFullYear()} Courtly. Hak Cipta Dilindungi.
           </p>
           <p className="mt-1">
-            Design inspired by sport field reservation website template.
+            Created by Courtly Team.
           </p>
         </div>
       </div>
