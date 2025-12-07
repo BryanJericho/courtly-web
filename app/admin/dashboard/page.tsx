@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
-import { getAllUsers, getAllTokos, getAllCourts, approveToko, deleteToko } from "../../lib/firestore";
-import type { User, Toko, Court } from "../../lib/types";
+import { getAllUsers, getAllTokos, getAllCourts, getAllBookings, approveToko, deleteToko, updateUserRole, deleteUser } from "../../lib/firestore";
+import type { User, Toko, Court, Booking } from "../../lib/types";
 import RoleGuard from "../../components/RoleGuard";
 import Header from "../../components/Header";
 import Link from "next/link";
@@ -13,10 +13,14 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [tokos, setTokos] = useState<Toko[]>([]);
   const [courts, setCourts] = useState<Court[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "tokos" | "users">("overview");
   const [processingTokoId, setProcessingTokoId] = useState<string | null>(null);
   const [deletingTokoId, setDeletingTokoId] = useState<string | null>(null);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [editUserRole, setEditUserRole] = useState<string>("");
 
   useEffect(() => {
     fetchData();
@@ -25,15 +29,17 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [usersData, tokosData, courtsData] = await Promise.all([
+      const [usersData, tokosData, courtsData, bookingsData] = await Promise.all([
         getAllUsers(),
         getAllTokos(),
         getAllCourts(),
+        getAllBookings(),
       ]);
 
       setUsers(usersData);
       setTokos(tokosData);
       setCourts(courtsData);
+      setBookings(bookingsData);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -82,6 +88,50 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEditUserRole = async (userId: string, currentRole: string) => {
+    setEditingUserId(userId);
+    setEditUserRole(currentRole);
+  };
+
+  const handleSaveUserRole = async (userId: string) => {
+    if (!editUserRole) return;
+
+    try {
+      await updateUserRole(userId, editUserRole as any);
+      
+      // Update local state
+      setUsers(users.map(u => 
+        u.uid === userId ? { ...u, role: editUserRole as any } : u
+      ));
+      
+      setEditingUserId(null);
+      alert("Role user berhasil diubah!");
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      alert("Gagal mengubah role user.");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus user "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
+      return;
+    }
+
+    try {
+      setDeletingUserId(userId);
+      await deleteUser(userId);
+
+      // Update local state
+      setUsers(users.filter(u => u.uid !== userId));
+      alert("User berhasil dihapus!");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("Gagal menghapus user. Silakan coba lagi.");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { bg: string; text: string; label: string }> = {
       active: { bg: "bg-green-100", text: "text-green-700", label: "Aktif" },
@@ -120,11 +170,33 @@ export default function AdminDashboard() {
     pendingTokos: tokos.filter(t => t.status === "pending_approval").length,
     totalCourts: courts.length,
     availableCourts: courts.filter(c => c.status === "available").length,
+    totalBookings: bookings.length,
+    pendingBookings: bookings.filter(b => b.status === "pending").length,
+    confirmedBookings: bookings.filter(b => b.status === "confirmed").length,
+    completedBookings: bookings.filter(b => b.status === "completed").length,
+    totalRevenue: bookings
+      .filter(b => b.status === "confirmed" || b.status === "completed")
+      .reduce((sum, b) => sum + b.totalPrice, 0),
     usersByRole: {
       user: users.filter(u => u.role === "user").length,
       penjaga: users.filter(u => u.role === "penjaga_lapangan").length,
       admin: users.filter(u => u.role === "super_admin").length,
+    },
+    courtsBySport: {
+      futsal: courts.filter(c => c.sport === "futsal").length,
+      basket: courts.filter(c => c.sport === "basket").length,
+      tenis: courts.filter(c => c.sport === "tenis").length,
+      badminton: courts.filter(c => c.sport === "badminton").length,
+      voli: courts.filter(c => c.sport === "voli").length,
     }
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(price);
   };
 
   return (
@@ -252,6 +324,103 @@ export default function AdminDashboard() {
                         </div>
                         <div className="mt-4 text-xs text-gray-600">
                           Tersedia: {stats.availableCourts} lapangan
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Additional Stats Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Total Booking</p>
+                            <p className="text-3xl font-bold text-gray-900 mt-1">
+                              {stats.totalBookings}
+                            </p>
+                          </div>
+                          <div className="text-4xl">📅</div>
+                        </div>
+                        <div className="mt-4 text-xs text-gray-600">
+                          Pending: {stats.pendingBookings} | Confirmed: {stats.confirmedBookings}
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Total Revenue</p>
+                            <p className="text-2xl font-bold text-gray-900 mt-1">
+                              {formatPrice(stats.totalRevenue)}
+                            </p>
+                          </div>
+                          <div className="text-4xl">💰</div>
+                        </div>
+                        <div className="mt-4 text-xs text-gray-600">
+                          Dari {stats.confirmedBookings + stats.completedBookings} booking selesai
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-pink-500">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Booking Selesai</p>
+                            <p className="text-3xl font-bold text-gray-900 mt-1">
+                              {stats.completedBookings}
+                            </p>
+                          </div>
+                          <div className="text-4xl">✅</div>
+                        </div>
+                        <div className="mt-4 text-xs text-gray-600">
+                          Booking yang sudah selesai
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Avg. per Booking</p>
+                            <p className="text-2xl font-bold text-gray-900 mt-1">
+                              {stats.totalBookings > 0 
+                                ? formatPrice(stats.totalRevenue / (stats.confirmedBookings + stats.completedBookings || 1))
+                                : "Rp 0"}
+                            </p>
+                          </div>
+                          <div className="text-4xl">📊</div>
+                        </div>
+                        <div className="mt-4 text-xs text-gray-600">
+                          Rata-rata nilai booking
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Courts by Sport Chart */}
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                      <h2 className="text-lg font-bold text-gray-900 mb-4">Lapangan per Jenis Olahraga</h2>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                          <div className="text-3xl mb-2">⚽</div>
+                          <div className="text-2xl font-bold text-gray-900">{stats.courtsBySport.futsal}</div>
+                          <div className="text-sm text-gray-600">Futsal</div>
+                        </div>
+                        <div className="text-center p-4 bg-orange-50 rounded-lg">
+                          <div className="text-3xl mb-2">🏀</div>
+                          <div className="text-2xl font-bold text-gray-900">{stats.courtsBySport.basket}</div>
+                          <div className="text-sm text-gray-600">Basket</div>
+                        </div>
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <div className="text-3xl mb-2">🎾</div>
+                          <div className="text-2xl font-bold text-gray-900">{stats.courtsBySport.tenis}</div>
+                          <div className="text-sm text-gray-600">Tenis</div>
+                        </div>
+                        <div className="text-center p-4 bg-purple-50 rounded-lg">
+                          <div className="text-3xl mb-2">🏸</div>
+                          <div className="text-2xl font-bold text-gray-900">{stats.courtsBySport.badminton}</div>
+                          <div className="text-sm text-gray-600">Badminton</div>
+                        </div>
+                        <div className="text-center p-4 bg-pink-50 rounded-lg">
+                          <div className="text-3xl mb-2">🏐</div>
+                          <div className="text-2xl font-bold text-gray-900">{stats.courtsBySport.voli}</div>
+                          <div className="text-sm text-gray-600">Voli</div>
                         </div>
                       </div>
                     </div>
@@ -442,24 +611,82 @@ export default function AdminDashboard() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                               Role
                             </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                              Aksi
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {users.map((user) => (
-                            <tr key={user.uid} className="hover:bg-gray-50">
+                          {users.map((u) => (
+                            <tr key={u.uid} className="hover:bg-gray-50">
                               <td className="px-6 py-4">
                                 <div className="font-semibold text-gray-900">
-                                  {user.firstName} {user.lastName}
+                                  {u.firstName} {u.lastName}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  UID: {u.uid.substring(0, 8)}...
                                 </div>
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-800">
-                                {user.email}
+                                {u.email}
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-800">
-                                {user.phone}
+                                {u.phone || "-"}
                               </td>
                               <td className="px-6 py-4">
-                                {getRoleBadge(user.role)}
+                                {editingUserId === u.uid ? (
+                                  <select
+                                    value={editUserRole}
+                                    onChange={(e) => setEditUserRole(e.target.value)}
+                                    className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  >
+                                    <option value="user">User</option>
+                                    <option value="penjaga_lapangan">Penjaga Lapangan</option>
+                                    <option value="super_admin">Super Admin</option>
+                                  </select>
+                                ) : (
+                                  getRoleBadge(u.role)
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-sm">
+                                <div className="flex items-center gap-2">
+                                  {editingUserId === u.uid ? (
+                                    <>
+                                      <button
+                                        onClick={() => handleSaveUserRole(u.uid)}
+                                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition font-medium"
+                                      >
+                                        Simpan
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setEditingUserId(null);
+                                          setEditUserRole("");
+                                        }}
+                                        className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition font-medium"
+                                      >
+                                        Batal
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        onClick={() => handleEditUserRole(u.uid, u.role)}
+                                        className="text-blue-600 hover:text-blue-700 font-medium"
+                                      >
+                                        Edit Role
+                                      </button>
+                                      <span className="text-gray-300">|</span>
+                                      <button
+                                        onClick={() => handleDeleteUser(u.uid, `${u.firstName} ${u.lastName}`)}
+                                        disabled={deletingUserId === u.uid}
+                                        className="text-red-600 hover:text-red-700 font-medium disabled:opacity-50"
+                                      >
+                                        {deletingUserId === u.uid ? "..." : "Hapus"}
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           ))}

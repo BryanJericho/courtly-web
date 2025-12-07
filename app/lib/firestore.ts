@@ -96,6 +96,18 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
+export const deleteUser = async (uid: string): Promise<void> => {
+  try {
+    const userRef = doc(db, "users", uid);
+    await deleteDoc(userRef);
+    // Note: This only deletes the Firestore document
+    // Firebase Auth user deletion requires Admin SDK on backend
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
+  }
+};
+
 // ============================================
 // TOKO OPERATIONS
 // ============================================

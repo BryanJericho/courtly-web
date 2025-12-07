@@ -48,9 +48,11 @@ export default function LoginPage() {
 
       const SUPER_ADMIN_UID = process.env.NEXT_PUBLIC_SUPER_ADMIN_UID;
       const isSuperAdmin = userCredential.user.uid === SUPER_ADMIN_UID;
+      const requireEmailVerification = process.env.NEXT_PUBLIC_REQUIRE_EMAIL_VERIFICATION === 'true';
 
       // Pengecualian untuk Super Admin - tidak perlu verifikasi email
-      if (!isSuperAdmin && !userCredential.user.emailVerified) {
+      // Atau jika email verification dimatikan untuk development
+      if (!isSuperAdmin && requireEmailVerification && !userCredential.user.emailVerified) {
         setError('Silakan verifikasi email Anda terlebih dahulu. Cek inbox atau folder spam email Anda.');
         await auth.signOut(); // Logout otomatis jika email belum diverifikasi
         setLoading(false);
