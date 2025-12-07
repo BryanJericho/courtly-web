@@ -172,7 +172,7 @@ export default function CreateLapanganPage() {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           placeholder="Contoh: Lapangan Futsal A"
                         />
                       </div>
@@ -187,7 +187,7 @@ export default function CreateLapanganPage() {
                             value={formData.sport}
                             onChange={handleInputChange}
                             required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           >
                             <option value="">Pilih Olahraga</option>
                             <option value="futsal">⚽ Futsal</option>
@@ -207,7 +207,7 @@ export default function CreateLapanganPage() {
                             value={formData.environment}
                             onChange={handleInputChange}
                             required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           >
                             <option value="">Pilih Lingkungan</option>
                             <option value="indoor">Indoor</option>
@@ -226,7 +226,7 @@ export default function CreateLapanganPage() {
                           onChange={handleInputChange}
                           required
                           rows={3}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           placeholder="Deskripsikan lapangan Anda..."
                         />
                       </div>
@@ -241,7 +241,7 @@ export default function CreateLapanganPage() {
                           value={formData.location}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           placeholder="Contoh: Jl. Merdeka No. 10, Bandung"
                         />
                         <p className="mt-1 text-xs text-gray-500">
@@ -269,7 +269,7 @@ export default function CreateLapanganPage() {
                           onChange={handleInputChange}
                           required
                           min="0"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           placeholder="150000"
                         />
                       </div>
@@ -285,7 +285,7 @@ export default function CreateLapanganPage() {
                           onChange={handleInputChange}
                           required
                           min="1"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                           placeholder="10"
                         />
                       </div>
@@ -309,7 +309,7 @@ export default function CreateLapanganPage() {
                           value={formData.startTime}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                         />
                       </div>
 
@@ -323,7 +323,7 @@ export default function CreateLapanganPage() {
                           value={formData.endTime}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                         />
                       </div>
                     </div>
@@ -346,7 +346,7 @@ export default function CreateLapanganPage() {
                             addFacility();
                           }
                         }}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                         placeholder="Contoh: Ruang Ganti"
                       />
                       <button
