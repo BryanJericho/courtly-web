@@ -29,9 +29,9 @@ function CourtCardSearch({ court }: { court: Court }) {
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
+    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
       {/* Image */}
-      <div className="relative h-40 bg-gray-300">
+      <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
         <Image
           src={court.images[0] || "/images/default-court.png"}
           alt={court.name}
@@ -39,46 +39,48 @@ function CourtCardSearch({ court }: { court: Court }) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
         />
-        <div className="absolute top-3 left-3 bg-yellow-400 text-xs font-semibold px-2 py-1 rounded-full">
+        <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
           {getSportLabel(court.sport)}
         </div>
-        <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
+        <div className="absolute top-3 right-3 bg-white text-yellow-500 px-2.5 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
           ⭐ {court.rating.toFixed(1)}
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">
+      <div className="p-5">
+        <h3 className="font-bold text-gray-900 mb-2 line-clamp-1 text-lg">
           {court.name}
         </h3>
 
-        <p className="text-xs text-gray-600 mb-3">
-          {court.availability?.startTime} - {court.availability?.endTime}
-        </p>
+        <div className="flex items-center gap-2 text-xs text-gray-600 mb-3">
+          <span className="flex items-center gap-1">
+            🕐 {court.availability?.startTime} - {court.availability?.endTime}
+          </span>
+        </div>
 
         {/* Info Row */}
-        <div className="flex gap-4 mb-3 text-xs text-gray-700">
-          <div className="flex items-center gap-1">
-            <FaMapMarkerAlt className="text-green-600" />
-            {court.location || "N/A"}
+        <div className="flex gap-4 mb-4 text-sm text-gray-700">
+          <div className="flex items-center gap-1.5">
+            <FaMapMarkerAlt className="text-green-500" />
+            <span className="line-clamp-1">{court.location || "N/A"}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <FaUsers className="text-green-600" />
-            {court.capacity}
+          <div className="flex items-center gap-1.5">
+            <FaUsers className="text-blue-500" />
+            <span>{court.capacity}</span>
           </div>
         </div>
 
         {/* Price & Button */}
-        <div className="flex justify-between items-end">
+        <div className="flex justify-between items-end pt-3 border-t border-gray-100">
           <div>
-            <p className="text-xs text-gray-600">Mulai dari</p>
-            <p className="text-lg font-bold text-green-600">
+            <p className="text-xs text-gray-500">Mulai dari</p>
+            <p className="text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
               Rp {formattedPrice}
             </p>
           </div>
           <Link href={`/detail/${court.id}`}>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded font-medium text-sm hover:bg-blue-700 transition">
+            <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:from-green-600 hover:to-blue-600 transition-all duration-300 shadow-md hover:shadow-lg">
               Lihat Detail
             </button>
           </Link>
@@ -150,23 +152,27 @@ export default function CariLapanganPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Header />
-      <div className="flex-grow bg-gray-50 pt-20">
+      <div className="flex-grow pt-24 pb-12">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">
-            Cari Lapangan Olahraga
-          </h1>
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              Cari Lapangan Olahraga
+            </h1>
+            <p className="text-gray-600">Temukan lapangan favorit Anda untuk berolahraga</p>
+          </div>
 
           {/* Search Info */}
           {searchQuery && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800">
-                Menampilkan hasil pencarian untuk: <span className="font-bold">"{searchQuery}"</span>
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 border-l-4 border-green-500 rounded-lg shadow-sm">
+              <p className="text-sm text-gray-700">
+                Menampilkan hasil pencarian untuk: <span className="font-bold text-green-600">"{searchQuery}"</span>
                 {filteredCourts.length > 0 ? (
-                  <span> - {filteredCourts.length} lapangan ditemukan</span>
+                  <span className="text-gray-600"> - {filteredCourts.length} lapangan ditemukan</span>
                 ) : (
-                  <span> - Tidak ada hasil yang ditemukan</span>
+                  <span className="text-red-600"> - Tidak ada hasil yang ditemukan</span>
                 )}
               </p>
               <button
@@ -174,21 +180,27 @@ export default function CariLapanganPage() {
                   setSearchQuery("");
                   window.history.replaceState({}, "", "/carilapangan");
                 }}
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium mt-1"
+                className="text-sm text-green-600 hover:text-green-700 font-medium mt-2 flex items-center gap-1"
               >
-                × Hapus pencarian
+                ✕ Hapus pencarian
               </button>
             </div>
           )}
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Sidebar Filter - Hidden di mobile, show di lg */}
-            <div className="hidden lg:block lg:w-64 flex-shrink-0">
-              <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24">
-                <h3 className="font-bold text-gray-900 mb-4">LOKASI</h3>
+            {/* Sidebar Filter - Enhanced */}
+            <div className="hidden lg:block lg:w-72 flex-shrink-0">
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 sticky top-24">
+                <h3 className="font-bold text-xl mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  Filter Pencarian
+                </h3>
+                
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <span>📍</span> LOKASI
+                </h4>
                 <div className="space-y-2 mb-6">
                   {LOCATIONS.map((loc) => (
-                    <label key={loc} className="flex items-center cursor-pointer">
+                    <label key={loc} className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
                         checked={selectedLocation === loc}
@@ -197,7 +209,7 @@ export default function CariLapanganPage() {
                             selectedLocation === loc ? null : loc
                           )
                         }
-                        className="w-4 h-4 text-green-600 rounded"
+                        className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
                       />
                       <span className="ml-2 text-sm text-gray-700">{loc}</span>
                     </label>
@@ -226,15 +238,15 @@ export default function CariLapanganPage() {
                 <h3 className="font-bold text-gray-900 mb-4">HARGA</h3>
                 <div className="space-y-2 mb-6">
                   {["Semua", "100k-500k", "500k-1jt"].map((price) => (
-                    <label key={price} className="flex items-center cursor-pointer">
+                    <label key={price} className="flex items-center cursor-pointer group">
                       <input
                         type="radio"
                         name="price"
                         checked={priceRange === price}
                         onChange={() => setPriceRange(price)}
-                        className="w-4 h-4 text-green-600"
+                        className="w-4 h-4 text-green-600 focus:ring-green-500"
                       />
-                      <span className="ml-2 text-sm text-gray-700">
+                      <span className="ml-2 text-sm text-gray-700 group-hover:text-green-600 transition-colors">
                         {price === "Semua" && "Semua harga"}
                         {price === "100k-500k" && "Rp 100.000 - Rp 500.000"}
                         {price === "500k-1jt" && "Rp 500.000 - Rp 1.000.000"}
@@ -243,10 +255,12 @@ export default function CariLapanganPage() {
                   ))}
                 </div>
 
-                <h3 className="font-bold text-gray-900 mb-4">LINGKUNGAN</h3>
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <span>🏞️</span> LINGKUNGAN
+                </h4>
                 <div className="space-y-2 mb-6">
                   {(["indoor", "outdoor"] as EnvironmentType[]).map((env) => (
-                    <label key={env} className="flex items-center cursor-pointer">
+                    <label key={env} className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
                         checked={selectedEnvironment === env}
@@ -255,9 +269,9 @@ export default function CariLapanganPage() {
                             selectedEnvironment === env ? null : env
                           )
                         }
-                        className="w-4 h-4 text-green-600 rounded"
+                        className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
                       />
-                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                      <span className="ml-2 text-sm text-gray-700 capitalize group-hover:text-green-600 transition-colors">
                         {env}
                       </span>
                     </label>
@@ -266,7 +280,7 @@ export default function CariLapanganPage() {
 
                 <button
                   onClick={handleApplyFilter}
-                  className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+                  className="w-full mt-6 bg-gradient-to-r from-green-600 to-blue-600 text-white py-2.5 rounded-lg font-semibold hover:from-green-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
                   Terapkan Filter
                 </button>
@@ -276,18 +290,18 @@ export default function CariLapanganPage() {
             {/* Main Content */}
             <div className="flex-1 w-full">
               {loading && (
-                <div className="text-center py-12">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-                  <p className="mt-4 text-gray-600">Memuat lapangan...</p>
+                <div className="text-center py-16">
+                  <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-600"></div>
+                  <p className="mt-6 text-gray-600 text-lg font-medium">Memuat lapangan...</p>
                 </div>
               )}
 
               {error && (
-                <div className="text-center py-12">
-                  <p className="text-red-600">{error}</p>
+                <div className="text-center py-16 bg-red-50 rounded-xl border border-red-100">
+                  <p className="text-red-600 text-lg mb-4">{error}</p>
                   <button
                     onClick={() => window.location.reload()}
-                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all shadow-md font-medium"
                   >
                     Coba Lagi
                   </button>
@@ -295,8 +309,9 @@ export default function CariLapanganPage() {
               )}
 
               {!loading && !error && courts.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-600 text-lg">
+                <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-200">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <p className="text-gray-700 text-lg mb-6">
                     Tidak ada lapangan yang sesuai dengan filter Anda.
                   </p>
                   <button
@@ -306,9 +321,9 @@ export default function CariLapanganPage() {
                       setPriceRange("Semua");
                       setSelectedEnvironment(null);
                     }}
-                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all shadow-md font-medium"
                   >
-                    Reset Filter
+                    Reset Semua Filter
                   </button>
                 </div>
               )}
@@ -318,10 +333,13 @@ export default function CariLapanganPage() {
                   {/* Lapangan Futsal */}
                   {futsalCourts.length > 0 && (
                     <div className="mb-12">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                        Lapangan Futsal ⚽ ({futsalCourts.length})
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
+                          <span>⚽</span> Lapangan Futsal
+                          <span className="text-sm font-normal text-gray-500">({futsalCourts.length})</span>
+                        </h2>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {futsalCourts.map((court) => (
                           <CourtCardSearch key={court.id} court={court} />
                         ))}
@@ -332,10 +350,13 @@ export default function CariLapanganPage() {
                   {/* Lapangan Basket */}
                   {basketCourts.length > 0 && (
                     <div className="mb-12">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                        Lapangan Basket 🏀 ({basketCourts.length})
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
+                          <span>🏀</span> Lapangan Basket
+                          <span className="text-sm font-normal text-gray-500">({basketCourts.length})</span>
+                        </h2>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {basketCourts.map((court) => (
                           <CourtCardSearch key={court.id} court={court} />
                         ))}
@@ -346,10 +367,13 @@ export default function CariLapanganPage() {
                   {/* Lapangan Tenis */}
                   {tenisCourts.length > 0 && (
                     <div className="mb-12">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                        Lapangan Tenis 🎾 ({tenisCourts.length})
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
+                          <span>🎾</span> Lapangan Tenis
+                          <span className="text-sm font-normal text-gray-500">({tenisCourts.length})</span>
+                        </h2>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {tenisCourts.map((court) => (
                           <CourtCardSearch key={court.id} court={court} />
                         ))}
@@ -360,10 +384,13 @@ export default function CariLapanganPage() {
                   {/* Lapangan Badminton */}
                   {badmintonCourts.length > 0 && (
                     <div className="mb-12">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                        Lapangan Badminton 🏸 ({badmintonCourts.length})
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
+                          <span>🏸</span> Lapangan Badminton
+                          <span className="text-sm font-normal text-gray-500">({badmintonCourts.length})</span>
+                        </h2>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {badmintonCourts.map((court) => (
                           <CourtCardSearch key={court.id} court={court} />
                         ))}
@@ -374,10 +401,13 @@ export default function CariLapanganPage() {
                   {/* Lapangan Voli */}
                   {voliCourts.length > 0 && (
                     <div className="mb-12">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
-                        Lapangan Voli 🏐 ({voliCourts.length})
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
+                          <span>🏐</span> Lapangan Voli
+                          <span className="text-sm font-normal text-gray-500">({voliCourts.length})</span>
+                        </h2>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {voliCourts.map((court) => (
                           <CourtCardSearch key={court.id} court={court} />
                         ))}
