@@ -7,9 +7,9 @@ import Link from "next/link";
 import { FaMapMarkerAlt, FaUsers, FaClock, FaStar } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { getCourt, getToko, checkBookingConflict } from "../../lib/firestore";
+import { getCourt, getToko, checkBookingConflict, getReviewsByCourtId } from "../../lib/firestore";
 import { useAuth } from "../../lib/AuthContext";
-import type { Court, Toko } from "../../lib/types";
+import type { Court, Toko, Review } from "../../lib/types";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../src/firebaseConfig";
 
@@ -21,6 +21,7 @@ export default function CourtDetailPage() {
 
   const [court, setCourt] = useState<Court | null>(null);
   const [toko, setToko] = useState<Toko | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -47,6 +48,10 @@ export default function CourtDetailPage() {
         // Fetch toko data
         const tokoData = await getToko(courtData.tokoId);
         setToko(tokoData);
+
+        // Fetch reviews
+        const reviewsData = await getReviewsByCourtId(courtId);
+        setReviews(reviewsData);
 
         // Generate next 7 days
         const dates = [];
@@ -251,7 +256,7 @@ export default function CourtDetailPage() {
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-6 text-sm text-gray-600">
             <Link href="/" className="hover:text-green-600">
               Beranda
             </Link>
@@ -355,22 +360,9 @@ export default function CourtDetailPage() {
 
               {/* Court Info */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
                   {court.name}
                 </h1>
-
-                {/* Rating */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex items-center gap-1">
-                    <FaStar className="text-yellow-400" />
-                    <span className="font-semibold text-lg">{court.rating.toFixed(1)}</span>
-                    <span className="text-gray-700">
-                      ({court.totalReviews} ulasan)
-                    </span>
-                  </div>
-                  <span className="text-gray-400">•</span>
-                  <span className="text-gray-800 capitalize font-medium">{court.environment}</span>
-                </div>
 
                 {/* Quick Info */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -428,57 +420,6 @@ export default function CourtDetailPage() {
                 </div>
               </div>
 
-              {/* Reviews Section */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Ulasan & Rating
-                </h2>
-
-                <div className="flex items-center gap-6 mb-6 pb-6 border-b">
-                  <div className="text-center">
-                    <div className="text-5xl font-bold text-gray-900 mb-1">
-                      {court.rating.toFixed(1)}
-                    </div>
-                    <div className="flex items-center gap-1 mb-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <FaStar
-                          key={star}
-                          className={
-                            star <= Math.round(court.rating)
-                              ? "text-yellow-400"
-                              : "text-gray-300"
-                          }
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {court.totalReviews} ulasan
-                    </p>
-                  </div>
-
-                  <div className="flex-1">
-                    {[5, 4, 3, 2, 1].map((rating) => {
-                      const percentage = Math.random() * 100; // TODO: Get from real data
-                      return (
-                        <div key={rating} className="flex items-center gap-2 mb-1">
-                          <span className="text-sm text-gray-600 w-3">{rating}</span>
-                          <FaStar className="text-yellow-400 text-xs" />
-                          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-yellow-400"
-                              style={{ width: `${percentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <p className="text-gray-600 text-center py-4">
-                  Belum ada ulasan. Jadilah yang pertama memberikan ulasan!
-                </p>
-              </div>
             </div>
 
             {/* Right Column - Booking Card */}
@@ -613,6 +554,99 @@ export default function CourtDetailPage() {
                   </p>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Ulasan & Rating</h2>
+            
+            {/* Rating Summary */}
+            <div className="bg-white rounded-xl p-6 shadow-md mb-6">
+              <div className="flex items-center gap-8">
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-gray-900 mb-2">
+                    {court?.rating.toFixed(1) || "0.0"}
+                  </div>
+                  <div className="flex gap-1 text-yellow-400 text-xl mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star}>
+                        {star <= Math.round(court?.rating || 0) ? "★" : "☆"}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {court?.totalReviews || 0} ulasan
+                  </div>
+                </div>
+
+                <div className="flex-1">
+                  {[5, 4, 3, 2, 1].map((star) => {
+                    const count = reviews.filter((r: any) => r.rating === star).length;
+                    const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                    
+                    return (
+                      <div key={star} className="flex items-center gap-3 mb-2">
+                        <span className="text-sm text-gray-600 w-8">{star}</span>
+                        <span className="text-yellow-400">★</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-yellow-400 h-2 rounded-full transition-all"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-gray-600 w-12 text-right">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Reviews List */}
+            <div className="space-y-4">
+              {reviews.length === 0 ? (
+                <div className="bg-white rounded-xl p-12 text-center shadow-md">
+                  <div className="text-gray-400 text-5xl mb-4">💭</div>
+                  <p className="text-gray-600">Belum ada ulasan. Jadilah yang pertama memberikan ulasan!</p>
+                </div>
+              ) : (
+                reviews.map((review: any) => (
+                  <div key={review.id} className="bg-white rounded-xl p-6 shadow-md">
+                    <div className="flex items-start gap-4">
+                      {/* User Avatar */}
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {review.userName?.[0]?.toUpperCase() || "U"}
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-900">{review.userName || "User"}</h4>
+                          <span className="text-xs text-gray-500">
+                            {new Date(review.createdAt.seconds * 1000).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
+
+                        {/* Rating Stars */}
+                        <div className="flex gap-1 text-yellow-400 mb-3">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span key={star}>{star <= review.rating ? "★" : "☆"}</span>
+                          ))}
+                        </div>
+
+                        {/* Comment */}
+                        <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

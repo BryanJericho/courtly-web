@@ -20,11 +20,13 @@ import type {
   Toko,
   Court,
   Booking,
+  Review,
   CreateTokoInput,
   UpdateTokoInput,
   CreateCourtInput,
   UpdateCourtInput,
   CreateBookingInput,
+  CreateReviewInput,
   CourtFilters,
   UserRole,
 } from "./types";
@@ -544,6 +546,125 @@ export const completeBooking = async (bookingId: string): Promise<void> => {
     });
   } catch (error) {
     console.error("Error completing booking:", error);
+    throw error;
+  }
+};
+
+// ============================================
+// REVIEW OPERATIONS
+// ============================================
+
+export const createReview = async (
+  userId: string,
+  data: {
+    courtId: string;
+    bookingId: string;
+    rating: number;
+    comment: string;
+  }
+): Promise<string> => {
+  try {
+    const reviewRef = collection(db, "reviews");
+    const docRef = await addDoc(reviewRef, {
+      ...data,
+      userId,
+      createdAt: Timestamp.now(),
+    });
+
+    // Update court rating
+    await updateCourtRating(data.courtId);
+
+    // Mark booking as reviewed
+    const bookingRef = doc(db, "bookings", data.bookingId);
+    await updateDoc(bookingRef, {
+      hasReviewed: true,
+    });
+
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating review:", error);
+    throw error;
+  }
+};
+
+export const getReviewsByCourtId = async (courtId: string): Promise<any[]> => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(reviewsRef, where("courtId", "==", courtId));
+    const querySnapshot = await getDocs(q);
+
+    const reviews = await Promise.all(
+      querySnapshot.docs.map(async (reviewDoc) => {
+        const reviewData = reviewDoc.data();
+        
+        // Get user info
+        const userDoc = await getDoc(doc(db, "users", reviewData.userId));
+        const userData = userDoc.data();
+
+        return {
+          id: reviewDoc.id,
+          ...reviewData,
+          userName: userData ? `${userData.firstName} ${userData.lastName}` : "User",
+          userImage: userData?.profileImage || null,
+        };
+      })
+    );
+
+    return reviews;
+  } catch (error) {
+    console.error("Error getting reviews:", error);
+    throw error;
+  }
+};
+
+export const checkUserReview = async (
+  userId: string,
+  bookingId: string
+): Promise<boolean> => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(
+      reviewsRef,
+      where("userId", "==", userId),
+      where("bookingId", "==", bookingId),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("Error checking user review:", error);
+    return false;
+  }
+};
+
+const updateCourtRating = async (courtId: string): Promise<void> => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(reviewsRef, where("courtId", "==", courtId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      // No reviews, set to 0
+      await updateDoc(doc(db, "courts", courtId), {
+        rating: 0,
+        totalReviews: 0,
+      });
+      return;
+    }
+
+    let totalRating = 0;
+    querySnapshot.forEach((doc) => {
+      totalRating += doc.data().rating;
+    });
+
+    const avgRating = totalRating / querySnapshot.size;
+
+    await updateDoc(doc(db, "courts", courtId), {
+      rating: avgRating,
+      totalReviews: querySnapshot.size,
+    });
+  } catch (error) {
+    console.error("Error updating court rating:", error);
     throw error;
   }
 };

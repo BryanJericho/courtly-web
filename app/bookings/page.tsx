@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/AuthContext";
-import { getUserBookings, getCourt, completeBooking } from "../lib/firestore";
+import { getUserBookings, getCourt, completeBooking, checkUserReview } from "../lib/firestore";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Header from "../components/Header";
+import ReviewModal from "../components/ReviewModal";
 import Link from "next/link";
 import type { Booking, Court } from "../lib/types";
 
@@ -21,6 +22,10 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all");
   const [completingBookingId, setCompletingBookingId] = useState<string | null>(null);
+  
+  // Review modal state
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState<BookingWithCourt | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -33,7 +38,8 @@ export default function BookingsPage() {
         const bookingsWithCourts = await Promise.all(
           bookingsData.map(async (booking) => {
             const court = await getCourt(booking.courtId);
-            return { ...booking, court } as BookingWithCourt;
+            const hasReviewed = await checkUserReview(user.uid, booking.id);
+            return { ...booking, court, hasReviewed } as BookingWithCourt;
           })
         );
 
@@ -113,11 +119,42 @@ export default function BookingsPage() {
       );
 
       alert("Booking berhasil ditandai sebagai selesai!");
+      
+      // Open review modal
+      const updatedBooking = bookings.find(b => b.id === bookingId);
+      if (updatedBooking) {
+        setSelectedBookingForReview({ ...updatedBooking, status: "completed" });
+        setIsReviewModalOpen(true);
+      }
     } catch (error) {
       console.error("Error completing booking:", error);
       alert("Gagal menandai booking sebagai selesai. Silakan coba lagi.");
     } finally {
       setCompletingBookingId(null);
+    }
+  };
+
+  const handleOpenReviewModal = (booking: BookingWithCourt) => {
+    setSelectedBookingForReview(booking);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleReviewSuccess = async () => {
+    // Refresh bookings to update hasReviewed status
+    if (!user) return;
+    
+    try {
+      const bookingsData = await getUserBookings(user.uid);
+      const bookingsWithCourts = await Promise.all(
+        bookingsData.map(async (booking) => {
+          const court = await getCourt(booking.courtId);
+          const hasReviewed = await checkUserReview(user.uid, booking.id);
+          return { ...booking, court, hasReviewed } as BookingWithCourt;
+        })
+      );
+      setBookings(bookingsWithCourts);
+    } catch (err) {
+      console.error("Error refreshing bookings:", err);
     }
   };
 
@@ -312,13 +349,15 @@ export default function BookingsPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           <Link
                             href={`/detail/${booking.courtId}`}
                             className="px-4 py-2 bg-gray-100 text-gray-800 font-medium rounded-lg hover:bg-gray-200 transition text-sm"
                           >
                             Lihat Lapangan
                           </Link>
+                          
+                          {/* Tombol Selesai Bermain - untuk booking yang confirmed */}
                           {booking.status === "confirmed" &&
                             booking.date &&
                             !isPastBooking(booking.date) && (
@@ -343,6 +382,23 @@ export default function BookingsPage() {
                                 </button>
                               </>
                             )}
+                          
+                          {/* Tombol Beri Review - untuk booking yang completed dan belum di-review */}
+                          {booking.status === "completed" && !booking.hasReviewed && (
+                            <button
+                              className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold rounded-lg hover:from-yellow-500 hover:to-orange-500 transition text-sm shadow-md"
+                              onClick={() => handleOpenReviewModal(booking)}
+                            >
+                              ⭐ Beri Review
+                            </button>
+                          )}
+                          
+                          {/* Label sudah direview */}
+                          {booking.status === "completed" && booking.hasReviewed && (
+                            <span className="px-4 py-2 bg-green-100 text-green-700 font-medium rounded-lg text-sm flex items-center gap-1">
+                              ✓ Sudah Direview
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -352,6 +408,21 @@ export default function BookingsPage() {
             )}
           </div>
         </div>
+
+        {/* Review Modal */}
+        {selectedBookingForReview && (
+          <ReviewModal
+            isOpen={isReviewModalOpen}
+            onClose={() => {
+              setIsReviewModalOpen(false);
+              setSelectedBookingForReview(null);
+            }}
+            courtId={selectedBookingForReview.courtId}
+            bookingId={selectedBookingForReview.id}
+            courtName={selectedBookingForReview.court?.name || "Lapangan"}
+            onSuccess={handleReviewSuccess}
+          />
+        )}
       </div>
     </ProtectedRoute>
   );

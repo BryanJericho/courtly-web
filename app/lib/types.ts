@@ -108,6 +108,22 @@ export interface Booking {
   courtName?: string;
   tokoName?: string;
   userName?: string;
+  hasReviewed?: boolean; // Check if user has reviewed
+}
+
+// Review interface
+export interface Review {
+  id: string;
+  courtId: string;
+  userId: string;
+  bookingId: string;
+  rating: number; // 1-5
+  comment: string;
+  createdAt: Timestamp | Date | string;
+  
+  // Computed fields
+  userName?: string;
+  userImage?: string;
 }
 
 // Form interfaces for creating/updating
@@ -176,4 +192,11 @@ export interface CourtFilters {
   environment?: EnvironmentType;
   status?: CourtStatus;
   tokoId?: string;
+}
+
+export interface CreateReviewInput {
+  courtId: string;
+  bookingId: string;
+  rating: number;
+  comment: string;
 }
