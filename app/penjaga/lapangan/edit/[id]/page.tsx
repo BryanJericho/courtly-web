@@ -25,6 +25,7 @@ export default function EditLapanganPage() {
     name: "",
     sport: "" as SportType,
     description: "",
+    location: "",
     price: "",
     capacity: "",
     environment: "" as EnvironmentType,
@@ -52,6 +53,7 @@ export default function EditLapanganPage() {
           name: courtData.name,
           sport: courtData.sport,
           description: courtData.description,
+          location: courtData.location || "",
           price: courtData.price.toString(),
           capacity: courtData.capacity.toString(),
           environment: courtData.environment,
@@ -110,6 +112,7 @@ export default function EditLapanganPage() {
         name: formData.name,
         sport: formData.sport,
         description: formData.description,
+        location: formData.location,
         price: parseInt(formData.price),
         capacity: parseInt(formData.capacity),
         environment: formData.environment,
@@ -253,6 +256,24 @@ export default function EditLapanganPage() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         placeholder="Deskripsikan lapangan Anda..."
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Lokasi *
+                      </label>
+                      <input
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Contoh: Jl. Merdeka No. 10, Bandung"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Masukkan nama jalan atau daerah lokasi lapangan
+                      </p>
                     </div>
                   </div>
                 </div>
