@@ -28,17 +28,39 @@ export default function SpecialRegisterPage() {
     });
   };
 
+  // Fungsi validasi password yang kuat
+  const validatePassword = (password: string): { isValid: boolean; message: string } => {
+    if (password.length < 8) {
+      return { isValid: false, message: 'Password minimal 8 karakter' };
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { isValid: false, message: 'Password harus mengandung minimal 1 huruf besar (A-Z)' };
+    }
+    if (!/[a-z]/.test(password)) {
+      return { isValid: false, message: 'Password harus mengandung minimal 1 huruf kecil (a-z)' };
+    }
+    if (!/[0-9]/.test(password)) {
+      return { isValid: false, message: 'Password harus mengandung minimal 1 angka (0-9)' };
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return { isValid: false, message: 'Password harus mengandung minimal 1 karakter spesial (!@#$%^&*)' };
+    }
+    return { isValid: true, message: '' };
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Password tidak cocok");
+    // Validasi password
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.message);
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError("Password minimal 6 karakter");
+    if (formData.password !== formData.confirmPassword) {
+      setError("Password tidak cocok");
       return;
     }
 
@@ -189,36 +211,37 @@ export default function SpecialRegisterPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
-                    placeholder="Minimal 6 karakter"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  placeholder="Buat kata sandi yang kuat"
+                />
+                <p className="mt-1 text-xs text-gray-600">
+                  Minimal 8 karakter, harus ada huruf besar, huruf kecil, angka, dan karakter spesial (!@#$%^&*)
+                </p>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Konfirmasi Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
-                    placeholder="Ulangi password"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Konfirmasi Password *
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  placeholder="Ulangi password"
+                />
               </div>
 
               <button

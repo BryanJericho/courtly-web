@@ -43,11 +43,38 @@ export default function RegisterPage() {
         }));
     };
 
+    // Fungsi validasi password yang kuat
+    const validatePassword = (password: string): { isValid: boolean; message: string } => {
+        if (password.length < 8) {
+            return { isValid: false, message: 'Password minimal 8 karakter' };
+        }
+        if (!/[A-Z]/.test(password)) {
+            return { isValid: false, message: 'Password harus mengandung minimal 1 huruf besar (A-Z)' };
+        }
+        if (!/[a-z]/.test(password)) {
+            return { isValid: false, message: 'Password harus mengandung minimal 1 huruf kecil (a-z)' };
+        }
+        if (!/[0-9]/.test(password)) {
+            return { isValid: false, message: 'Password harus mengandung minimal 1 angka (0-9)' };
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            return { isValid: false, message: 'Password harus mengandung minimal 1 karakter spesial (!@#$%^&*)' };
+        }
+        return { isValid: true, message: '' };
+    };
+
     // Fungsi untuk pendaftaran Email/Password
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
-        
+
+        // Validasi password
+        const passwordValidation = validatePassword(formData.password);
+        if (!passwordValidation.isValid) {
+            setError(passwordValidation.message);
+            return;
+        }
+
         if (formData.password !== formData.confirmPassword) {
             setError('Konfirmasi kata sandi tidak cocok.');
             return;
@@ -226,15 +253,18 @@ export default function RegisterPage() {
                             <div>
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Kata Sandi</label>
                                 <div className="relative">
-                                    <input type={showPassword ? 'text' : 'password'} name="password" required 
+                                    <input type={showPassword ? 'text' : 'password'} name="password" required
                                         value={formData.password} onChange={handleChange}
-                                        placeholder="Minimal 6 karakter"
+                                        placeholder="Buat kata sandi yang kuat"
                                         className="w-full px-2.5 py-2 text-sm text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-9 placeholder-gray-400"
                                     />
                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-700">
                                         {showPassword ? (<EyeSlashIcon className="h-4 w-4" />) : (<EyeIcon className="h-4 w-4" />)}
                                     </button>
                                 </div>
+                                <p className="mt-1 text-xs text-gray-600">
+                                    Minimal 8 karakter, harus ada huruf besar, huruf kecil, angka, dan karakter spesial (!@#$%^&*)
+                                </p>
                             </div>
 
                             {/* Konfirmasi Kata Sandi */}
