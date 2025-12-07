@@ -524,3 +524,14 @@ export const cancelBooking = async (bookingId: string): Promise<void> => {
     throw error;
   }
 };
+
+export const completeBooking = async (bookingId: string): Promise<void> => {
+  try {
+    await updateBooking(bookingId, {
+      status: "completed",
+    });
+  } catch (error) {
+    console.error("Error completing booking:", error);
+    throw error;
+  }
+};

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/AuthContext";
-import { getUserBookings, getCourt } from "../lib/firestore";
+import { getUserBookings, getCourt, completeBooking } from "../lib/firestore";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Header from "../components/Header";
 import Link from "next/link";
@@ -10,6 +10,9 @@ import type { Booking, Court } from "../lib/types";
 
 interface BookingWithCourt extends Booking {
   court?: Court;
+  date?: string; // Custom field used in actual implementation
+  startTime?: string;
+  duration?: number;
 }
 
 export default function BookingsPage() {
@@ -17,6 +20,7 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<BookingWithCourt[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all");
+  const [completingBookingId, setCompletingBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -29,7 +33,7 @@ export default function BookingsPage() {
         const bookingsWithCourts = await Promise.all(
           bookingsData.map(async (booking) => {
             const court = await getCourt(booking.courtId);
-            return { ...booking, court };
+            return { ...booking, court } as BookingWithCourt;
           })
         );
 
@@ -92,10 +96,45 @@ export default function BookingsPage() {
     return bookingDate < today;
   };
 
+  const handleCompleteBooking = async (bookingId: string) => {
+    if (!confirm("Apakah Anda yakin sudah selesai bermain?")) return;
+
+    setCompletingBookingId(bookingId);
+    try {
+      await completeBooking(bookingId);
+
+      // Update local state
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, status: "completed" as const }
+            : booking
+        )
+      );
+
+      alert("Booking berhasil ditandai sebagai selesai!");
+    } catch (error) {
+      console.error("Error completing booking:", error);
+      alert("Gagal menandai booking sebagai selesai. Silakan coba lagi.");
+    } finally {
+      setCompletingBookingId(null);
+    }
+  };
+
   const filteredBookings = bookings.filter((booking) => {
     if (filter === "all") return true;
-    if (filter === "upcoming") return !isPastBooking(booking.date);
-    if (filter === "past") return isPastBooking(booking.date);
+    if (filter === "upcoming") {
+      // Upcoming: confirmed bookings yang belum lewat tanggalnya
+      return booking.status === "confirmed" && booking.date && !isPastBooking(booking.date);
+    }
+    if (filter === "past") {
+      // Riwayat: completed, cancelled, atau yang sudah lewat tanggalnya
+      return (
+        booking.status === "completed" ||
+        booking.status === "cancelled" ||
+        (booking.date && isPastBooking(booking.date))
+      );
+    }
     return true;
   });
 
@@ -223,7 +262,7 @@ export default function BookingsPage() {
                               📅 Tanggal
                             </p>
                             <p className="text-base font-bold text-gray-900">
-                              {new Date(booking.date).toLocaleDateString(
+                              {booking.date ? new Date(booking.date).toLocaleDateString(
                                 "id-ID",
                                 {
                                   weekday: "short",
@@ -231,7 +270,7 @@ export default function BookingsPage() {
                                   month: "short",
                                   day: "numeric",
                                 }
-                              )}
+                              ) : "-"}
                             </p>
                           </div>
 
@@ -241,14 +280,18 @@ export default function BookingsPage() {
                               🕐 Waktu
                             </p>
                             <p className="text-base font-bold text-gray-900">
-                              {booking.startTime} -{" "}
-                              {calculateEndTime(
-                                booking.startTime,
-                                booking.duration
-                              )}
+                              {booking.startTime && booking.duration ? (
+                                <>
+                                  {booking.startTime} -{" "}
+                                  {calculateEndTime(
+                                    booking.startTime,
+                                    booking.duration
+                                  )}
+                                </>
+                              ) : "-"}
                             </p>
                             <p className="text-xs text-gray-700">
-                              ({booking.duration} jam)
+                              ({booking.duration || 0} jam)
                             </p>
                           </div>
 
@@ -277,16 +320,28 @@ export default function BookingsPage() {
                             Lihat Lapangan
                           </Link>
                           {booking.status === "confirmed" &&
+                            booking.date &&
                             !isPastBooking(booking.date) && (
-                              <button
-                                className="px-4 py-2 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition text-sm"
-                                onClick={() => {
-                                  // TODO: Add cancel booking functionality
-                                  alert("Fitur batalkan booking akan segera hadir");
-                                }}
-                              >
-                                Batalkan
-                              </button>
+                              <>
+                                <button
+                                  className="px-4 py-2 bg-green-50 text-green-700 font-medium rounded-lg hover:bg-green-100 transition text-sm"
+                                  onClick={() => handleCompleteBooking(booking.id)}
+                                  disabled={completingBookingId === booking.id}
+                                >
+                                  {completingBookingId === booking.id
+                                    ? "Memproses..."
+                                    : "Selesai Bermain"}
+                                </button>
+                                <button
+                                  className="px-4 py-2 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition text-sm"
+                                  onClick={() => {
+                                    // TODO: Add cancel booking functionality
+                                    alert("Fitur batalkan booking akan segera hadir");
+                                  }}
+                                >
+                                  Batalkan
+                                </button>
+                              </>
                             )}
                         </div>
                       </div>
