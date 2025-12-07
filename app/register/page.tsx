@@ -33,7 +33,7 @@ export default function RegisterPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const volleyballImage = 'http://googleusercontent.com/image_collection/image_retrieval/16031492626801100943_0'; 
+    const volleyballImage = '/img/run.jpg'; 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -183,7 +183,7 @@ export default function RegisterPage() {
     return (
         <div className="flex h-screen overflow-hidden bg-white">
             {/* Kolom Kiri: Gambar */}
-            <div className="hidden lg:flex lg:w-2/5 xl:w-1/2 bg-gray-100 relative overflow-hidden rounded-r-3xl">
+            <div className="hidden lg:flex lg:w-2/5 xl:w-1/2 bg-gray-100 relative overflow-hidden">
                 <Image
                     src={volleyballImage}
                     alt="Volleyball"
@@ -202,7 +202,7 @@ export default function RegisterPage() {
             <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-7">
                     <div className="w-full max-w-lg mx-auto">
-                        <h1 className="text-4xl font-bold text-gray-900 mb-2">Daftar</h1>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-2 mt-5">Daftar</h1>
                         <p className="text-gray-500 text-sm mb-7">
                             Siapkan akun untuk mengakses layanan.
                         </p>
