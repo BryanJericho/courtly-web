@@ -11,7 +11,7 @@ import { useCourts } from "../hooks/useCourts";
 import type { Court, SportType, EnvironmentType } from "../lib/types";
 
 const LOCATIONS = ["Jakarta", "Surabaya", "Bandung", "Makassar", "Medan"];
-const SPORTS: SportType[] = ["futsal", "basket", "voli", "tenis", "badminton"];
+const SPORTS: SportType[] = ["futsal", "basket", "tenis", "badminton"];
 
 // CourtCard Component untuk halaman Cari Lapangan
 function CourtCardSearch({ court }: { court: Court }) {
@@ -99,7 +99,6 @@ export default function CariLapanganPage() {
   const [selectedSport, setSelectedSport] = useState<SportType | null>(
     sportFromUrl
   );
-  const [priceRange, setPriceRange] = useState<string>("Semua");
   const [selectedEnvironment, setSelectedEnvironment] =
     useState<EnvironmentType | null>(null);
   const [searchQuery, setSearchQuery] = useState(searchFromUrl);
@@ -109,18 +108,6 @@ export default function CariLapanganPage() {
     sport: selectedSport || undefined,
     city: selectedLocation || undefined,
     environment: selectedEnvironment || undefined,
-    minPrice:
-      priceRange === "100k-500k"
-        ? 100000
-        : priceRange === "500k-1jt"
-        ? 500000
-        : undefined,
-    maxPrice:
-      priceRange === "100k-500k"
-        ? 500000
-        : priceRange === "500k-1jt"
-        ? 1000000
-        : undefined,
     status: "available" as const,
   };
 
@@ -144,7 +131,6 @@ export default function CariLapanganPage() {
   const basketCourts = filteredCourts.filter((c) => c.sport === "basket");
   const tenisCourts = filteredCourts.filter((c) => c.sport === "tenis");
   const badmintonCourts = filteredCourts.filter((c) => c.sport === "badminton");
-  const voliCourts = filteredCourts.filter((c) => c.sport === "voli");
 
   const handleApplyFilter = () => {
     // Filter already applied via useCourts dependency
@@ -216,40 +202,22 @@ export default function CariLapanganPage() {
                   ))}
                 </div>
 
-                <h3 className="font-bold text-gray-900 mb-4">JENIS OLAHRAGA</h3>
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <span>⚽</span> JENIS OLAHRAGA
+                </h4>
                 <div className="space-y-2 mb-6">
                   {SPORTS.map((sport) => (
-                    <label key={sport} className="flex items-center cursor-pointer">
+                    <label key={sport} className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
                         checked={selectedSport === sport}
                         onChange={() =>
                           setSelectedSport(selectedSport === sport ? null : sport)
                         }
-                        className="w-4 h-4 text-green-600 rounded"
+                        className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
                       />
-                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                      <span className="ml-2 text-sm text-gray-700 capitalize group-hover:text-green-600 transition-colors">
                         {sport}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-
-                <h3 className="font-bold text-gray-900 mb-4">HARGA</h3>
-                <div className="space-y-2 mb-6">
-                  {["Semua", "100k-500k", "500k-1jt"].map((price) => (
-                    <label key={price} className="flex items-center cursor-pointer group">
-                      <input
-                        type="radio"
-                        name="price"
-                        checked={priceRange === price}
-                        onChange={() => setPriceRange(price)}
-                        className="w-4 h-4 text-green-600 focus:ring-green-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700 group-hover:text-green-600 transition-colors">
-                        {price === "Semua" && "Semua harga"}
-                        {price === "100k-500k" && "Rp 100.000 - Rp 500.000"}
-                        {price === "500k-1jt" && "Rp 500.000 - Rp 1.000.000"}
                       </span>
                     </label>
                   ))}
@@ -392,23 +360,6 @@ export default function CariLapanganPage() {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {badmintonCourts.map((court) => (
-                          <CourtCardSearch key={court.id} court={court} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Lapangan Voli */}
-                  {voliCourts.length > 0 && (
-                    <div className="mb-12">
-                      <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
-                          <span>🏐</span> Lapangan Voli
-                          <span className="text-sm font-normal text-gray-500">({voliCourts.length})</span>
-                        </h2>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                        {voliCourts.map((court) => (
                           <CourtCardSearch key={court.id} court={court} />
                         ))}
                       </div>
