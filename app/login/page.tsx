@@ -4,20 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaFacebookF, FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 // 💡 Tambah impor untuk Google Auth dan Firestore
-import { 
-    signInWithEmailAndPassword, 
-    GoogleAuthProvider, 
-    signInWithPopup 
+import {
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore'; 
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Pastikan path ini benar dan mengekspor auth dan db
-import { auth, db } from '../../src/firebaseConfig'; 
+import { auth, db } from '../../src/firebaseConfig';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,10 +26,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter(); 
-  
-  // URL gambar
-  const badmintonCourtImage = 'http://googleusercontent.com/image_collection/image_retrieval/16031492626801100943_0';
+  const router = useRouter();
 
   // 1. Fungsi Login Email/Password
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -97,7 +93,7 @@ export default function LoginPage() {
   };
 
   // 2. 🚀 Fungsi Login dengan Google
-  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -161,9 +157,21 @@ export default function LoginPage() {
       {/* Kolom Kiri: Form Login */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white">
         <div className="w-full max-w-md">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8">
+          {/* Logo Courtly */}
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-block">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-500 to-teal-500 bg-clip-text text-transparent">
+                Courtly
+              </h1>
+            </Link>
+          </div>
+
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Masuk
-          </h1>
+          </h2>
+          <p className="text-sm text-gray-600 mb-8">
+            Silakan masuk ke akun Anda
+          </p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             
@@ -219,63 +227,30 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Pilihan Role */}
+            {/* Pilihan Role - Dropdown */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Login Sebagai</label>
-              <div className="grid grid-cols-2 gap-3">
-                <label className={`flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition ${selectedRole === 'user' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}`}>
-                  <input
-                    type="radio"
-                    name="role"
-                    value="user"
-                    checked={selectedRole === 'user'}
-                    onChange={(e) => setSelectedRole(e.target.value as 'user' | 'penjaga_lapangan')}
-                    className="sr-only"
-                  />
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">👤</div>
-                    <div className="text-sm font-semibold text-gray-900">User</div>
-                    <div className="text-xs text-gray-600">Booking lapangan</div>
-                  </div>
-                </label>
-                <label className={`flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition ${selectedRole === 'penjaga_lapangan' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}`}>
-                  <input
-                    type="radio"
-                    name="role"
-                    value="penjaga_lapangan"
-                    checked={selectedRole === 'penjaga_lapangan'}
-                    onChange={(e) => setSelectedRole(e.target.value as 'user' | 'penjaga_lapangan')}
-                    className="sr-only"
-                  />
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🏟</div>
-                    <div className="text-sm font-semibold text-gray-900">Penjaga</div>
-                    <div className="text-xs text-gray-600">Kelola lapangan</div>
-                  </div>
-                </label>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Login Sebagai
+              </label>
+              <div className="mt-1">
+                <select
+                  id="role"
+                  name="role"
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value as 'user' | 'penjaga_lapangan')}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 bg-white"
+                >
+                  <option value="user">👤 User - Booking lapangan</option>
+                  <option value="penjaga_lapangan">🏟 Penjaga Lapangan - Kelola lapangan</option>
+                </select>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              {/* Checkbox Ingatkan Saya */}
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Ingatkan Saya
-                </label>
-              </div>
-
-              {/* Lupa Kata Sandi */}
-              <div className="text-sm">
-                <Link href="#" className="font-medium text-red-600 hover:text-red-500">
-                  Lupa Kata Sandi?
-                </Link>
-              </div>
+            {/* Lupa Kata Sandi */}
+            <div className="text-right">
+              <Link href="#" className="text-sm font-medium text-green-600 hover:text-green-500">
+                Lupa Kata Sandi?
+              </Link>
             </div>
 
             {/* Pesan Error */}
@@ -303,6 +278,7 @@ export default function LoginPage() {
             </Link>
           </div>
 
+          {/* Google Login */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -315,52 +291,30 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Tombol Social Login */}
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              {/* Facebook */}
-              <div>
-                <Link
-                  href="#"
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <FaFacebookF className="h-5 w-5 text-blue-600" aria-hidden="true" />
-                </Link>
-              </div>
-
-              {/* Google - 🚀 Dihubungkan ke handleGoogleSignIn */}
-              <div>
-                <Link
-                  href="#"
-                  onClick={handleGoogleSignIn}
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <FcGoogle className="h-5 w-5" aria-hidden="true" />
-                </Link>
-              </div>
-
-              {/* Apple */}
-              <div>
-                <Link
-                  href="#"
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <FaApple className="h-5 w-5 text-gray-900" aria-hidden="true" />
-                </Link>
-              </div>
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full inline-flex items-center justify-center gap-3 py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                <FcGoogle className="h-5 w-5" />
+                Masuk dengan Google
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Kolom Kanan: Gambar */}
-      <div className="hidden lg:block w-[40%] xl:w-[50%] bg-gray-100 relative overflow-hidden rounded-l-3xl">
+      <div className="hidden lg:block w-[40%] xl:w-[50%] bg-gray-100 relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src={badmintonCourtImage}
-            alt="Lapangan Bulu Tangkis Indoor"
-            layout="fill"
-            objectFit="cover"
-            priority 
+            src="/img/funsport1.jpg"
+            alt="Fun Sport - Olahraga"
+            fill
+            className="object-cover"
+            priority
           />
         </div>
         
