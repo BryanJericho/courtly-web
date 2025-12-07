@@ -8,7 +8,7 @@ import { useAuth } from "../lib/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../src/firebaseConfig";
 import { useRouter } from "next/navigation";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
 import { getAllCourts } from "../lib/firestore";
 import type { Court } from "../lib/types";
 import Image from "next/image";
@@ -21,6 +21,7 @@ const Header: React.FC = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Court[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
@@ -112,28 +113,44 @@ const Header: React.FC = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
-      <nav className="container mx-auto flex items-center justify-between px-8 py-4 md:px-18 md:py-6">
-        {/* Kontainer Kiri: Logo dan Navigasi */}
+      <nav className="container mx-auto flex items-center justify-between px-4 py-4 md:px-8 md:py-6">
+        {/* Mobile: Hamburger - Logo - Profile */}
+        {/* Desktop: Logo+Nav - Spacer - Search - Profile */}
+        
+        {/* Hamburger Menu Button - Mobile Only */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden text-gray-800 hover:text-green-600 p-2"
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? (
+            <FaTimes className="w-6 h-6" />
+          ) : (
+            <FaBars className="w-6 h-6" />
+          )}
+        </button>
+
+        {/* Left Section - Logo and Navigation (Desktop) */}
         <div className="flex items-center space-x-10">
           {/* Logo Courtly */}
           <Link
             href="/"
-            className={`${plusJakartSans.className} font-bold text-2xl text-gradient-courtly`}
+            className={`${plusJakartSans.className} font-bold text-2xl text-gradient-courtly flex items-center`}
           >
             Courtly
           </Link>
 
-          {/* Navigasi Tautan */}
-          <div className="flex space-x-8 items-center text-md font-medium">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8 text-md font-medium">
             <Link
               href="/"
-              className="text-gray-800 hover:text-green-600 hidden sm:block"
+              className="text-gray-800 hover:text-green-600 flex items-center"
             >
               Beranda
             </Link>
             <Link
               href="/carilapangan"
-              className="text-gray-800 hover:text-green-600 hidden sm:block"
+              className="text-gray-800 hover:text-green-600 flex items-center"
             >
               Cari Lapangan
             </Link>
@@ -142,7 +159,7 @@ const Header: React.FC = () => {
             {user && (user.role === "penjaga_lapangan" || user.role === "super_admin") && (
               <Link
                 href={getDashboardLink()}
-                className="text-gray-800 hover:text-green-600 hidden sm:block"
+                className="text-gray-800 hover:text-green-600 flex items-center"
               >
                 Dashboard
               </Link>
@@ -150,11 +167,11 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Spacer to push search and profile to the right */}
-        <div className="flex-1"></div>
+        {/* Spacer - Desktop Only */}
+        <div className="flex-1 hidden md:block"></div>
 
-        {/* Search Bar with Autocomplete */}
-        <div ref={searchRef} className="hidden md:block relative mr-3">
+        {/* Search Bar with Autocomplete - Desktop Only */}
+        <div ref={searchRef} className="hidden md:flex items-center relative mr-3">
           <form onSubmit={handleSearch} className="flex items-center bg-gray-100 rounded-full px-4 py-2">
             <FaSearch className="text-gray-500 mr-2" />
             <input
@@ -233,12 +250,12 @@ const Header: React.FC = () => {
         </div>
 
         {/* Kontainer Kanan: Auth Buttons atau Profile Menu */}
-        <div className="flex space-x-3 items-center">
+        <div className="flex items-center space-x-3">
           {loading ? (
             <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
           ) : user ? (
             // Profile Dropdown Menu
-            <div className="relative">
+            <div className="relative flex items-center">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
@@ -250,7 +267,7 @@ const Header: React.FC = () => {
                   {user.firstName || "User"}
                 </span>
                 <svg
-                  className={`w-4 h-4 transition-transform ${
+                  className={`w-4 h-4 transition-transform hidden md:block ${
                     isDropdownOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -322,7 +339,7 @@ const Header: React.FC = () => {
             </div>
           ) : (
             // Login & Register Buttons (when not logged in)
-            <>
+            <div className="flex items-center space-x-3">
               <Link href="/login">
                 <button className="px-4 py-2 rounded-3xl transition duration-200 btn-outline-gradient border-2 border-black">
                   Masuk
@@ -334,10 +351,110 @@ const Header: React.FC = () => {
                   Daftar
                 </button>
               </Link>
-            </>
+            </div>
           )}
         </div>
       </nav>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="container mx-auto px-4 py-4 space-y-3">
+            {/* Search Bar Mobile */}
+            <div className="mb-4">
+              <form onSubmit={handleSearch} className="flex items-center bg-gray-100 rounded-full px-4 py-2">
+                <FaSearch className="text-gray-500 mr-2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari lapangan..."
+                  className="bg-transparent outline-none text-gray-700 placeholder-gray-500 w-full"
+                />
+              </form>
+            </div>
+
+            {/* Navigation Links */}
+            <Link
+              href="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg font-medium transition"
+            >
+              🏠 Beranda
+            </Link>
+            <Link
+              href="/carilapangan"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg font-medium transition"
+            >
+              🔍 Cari Lapangan
+            </Link>
+
+            {user && (
+              <>
+                {(user.role === "penjaga_lapangan" || user.role === "super_admin") && (
+                  <Link
+                    href={getDashboardLink()}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg font-medium transition"
+                  >
+                    📊 Dashboard
+                  </Link>
+                )}
+                
+                <Link
+                  href="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg font-medium transition"
+                >
+                  👤 Edit Profil
+                </Link>
+
+                {(user.role === "user" || !user.role || (user.role !== "penjaga_lapangan" && user.role !== "super_admin")) && (
+                  <Link
+                    href="/bookings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg font-medium transition"
+                  >
+                    📅 Booking Saya
+                  </Link>
+                )}
+
+                <div className="border-t border-gray-200 my-2"></div>
+
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-3 px-4 text-red-600 hover:bg-red-50 rounded-lg font-medium transition"
+                >
+                  🚪 Keluar
+                </button>
+              </>
+            )}
+
+            {!user && !loading && (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-3 px-4 text-center bg-white border-2 border-green-600 text-green-600 rounded-lg font-medium hover:bg-green-50 transition"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-3 px-4 text-center bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition"
+                >
+                  Daftar
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

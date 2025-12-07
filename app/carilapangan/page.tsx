@@ -154,7 +154,7 @@ export default function CariLapanganPage() {
       <Header />
       <div className="flex-grow bg-gray-50 pt-20">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">
             Cari Lapangan Olahraga
           </h1>
 
