@@ -46,8 +46,11 @@ export default function LoginPage() {
         password
       );
 
-      // Cek apakah email sudah diverifikasi
-      if (!userCredential.user.emailVerified) {
+      const SUPER_ADMIN_UID = process.env.NEXT_PUBLIC_SUPER_ADMIN_UID;
+      const isSuperAdmin = userCredential.user.uid === SUPER_ADMIN_UID;
+
+      // Pengecualian untuk Super Admin - tidak perlu verifikasi email
+      if (!isSuperAdmin && !userCredential.user.emailVerified) {
         setError('Silakan verifikasi email Anda terlebih dahulu. Cek inbox atau folder spam email Anda.');
         await auth.signOut(); // Logout otomatis jika email belum diverifikasi
         setLoading(false);
@@ -59,8 +62,8 @@ export default function LoginPage() {
       const userDoc = await getDoc(userRef);
       const userData = userDoc.data();
 
-      // Validasi role yang dipilih dengan role yang tersimpan
-      if (userData?.role !== selectedRole) {
+      // Pengecualian untuk Super Admin - tidak perlu validasi role
+      if (!isSuperAdmin && userData?.role !== selectedRole) {
         setError(`Akun tidak terdaftar sebagai ${selectedRole === 'user' ? 'User' : 'Penjaga Lapangan'}. Silakan pilih role yang sesuai atau daftar terlebih dahulu.`);
         await auth.signOut(); // Logout otomatis jika role tidak sesuai
         setLoading(false);
@@ -68,6 +71,9 @@ export default function LoginPage() {
       }
 
       console.log('Login Berhasil! User:', userCredential.user.uid);
+      if (isSuperAdmin) {
+        console.log('Super Admin login detected');
+      }
 
       // Redirect ke homepage
       router.push('/'); 
@@ -104,6 +110,9 @@ export default function LoginPage() {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
+        const SUPER_ADMIN_UID = process.env.NEXT_PUBLIC_SUPER_ADMIN_UID;
+        const isSuperAdmin = user.uid === SUPER_ADMIN_UID;
+
         // Cek apakah user sudah ada di Firestore
         const userRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userRef);
@@ -130,8 +139,8 @@ export default function LoginPage() {
         const userDocRefresh = await getDoc(userRef);
         const userData = userDocRefresh.data();
 
-        // Validasi role untuk user yang sudah terdaftar sebelumnya
-        if (userDoc.exists() && userData?.role !== selectedRole) {
+        // Pengecualian untuk Super Admin - tidak perlu validasi role
+        if (!isSuperAdmin && userDoc.exists() && userData?.role !== selectedRole) {
             setError(`Akun tidak terdaftar sebagai ${selectedRole === 'user' ? 'User' : 'Penjaga Lapangan'}. Silakan pilih role yang sesuai.`);
             await auth.signOut();
             setLoading(false);
@@ -139,6 +148,9 @@ export default function LoginPage() {
         }
 
         console.log('Google Sign-in Berhasil! User:', user.uid);
+        if (isSuperAdmin) {
+            console.log('Super Admin Google login detected');
+        }
 
         // Redirect ke homepage (Google accounts are pre-verified)
         router.push('/'); 
