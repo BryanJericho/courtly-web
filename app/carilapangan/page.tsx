@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 import Image from "next/image";
@@ -97,7 +97,7 @@ function CourtCardSearch({ court }: { court: Court }) {
   );
 }
 
-export default function CariLapanganPage() {
+function CariLapanganContent() {
   const searchParams = useSearchParams();
   const sportFromUrl = searchParams.get("sport") as SportType | null;
   const searchFromUrl = searchParams.get("search") || "";
@@ -292,9 +292,8 @@ export default function CariLapanganPage() {
                   </p>
                   <button
                     onClick={() => {
-                      setSelectedLocation(null);
                       setSelectedSport(null);
-                      setPriceRange("Semua");
+                      setSelectedArea(null);
                       setSelectedEnvironment(null);
                     }}
                     className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all shadow-md font-medium"
@@ -381,5 +380,20 @@ export default function CariLapanganPage() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function CariLapanganPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Memuat...</p>
+        </div>
+      </div>
+    }>
+      <CariLapanganContent />
+    </Suspense>
   );
 }

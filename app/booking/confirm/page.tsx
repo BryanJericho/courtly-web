@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../lib/AuthContext";
 import { createBooking, getCourt, checkBookingConflict } from "../../lib/firestore";
@@ -9,7 +9,7 @@ import Header from "../../components/Header";
 import Link from "next/link";
 import type { Court } from "../../lib/types";
 
-export default function BookingConfirmPage() {
+function BookingConfirmContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -389,5 +389,20 @@ export default function BookingConfirmPage() {
         </div>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function BookingConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+          <p className="mt-4 text-gray-600">Memuat...</p>
+        </div>
+      </div>
+    }>
+      <BookingConfirmContent />
+    </Suspense>
   );
 }

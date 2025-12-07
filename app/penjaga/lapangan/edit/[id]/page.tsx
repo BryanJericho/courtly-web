@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../../../lib/AuthContext";
 import { getCourt, updateCourt } from "../../../../lib/firestore";
-import type { Court, SportType, EnvironmentType, AreaType } from "../../../../lib/types";
+import type { Court, SportType, EnvironmentType, AreaType, CourtStatus } from "../../../../lib/types";
 import RoleGuard from "../../../../components/RoleGuard";
 import Header from "../../../../components/Header";
 import Link from "next/link";
@@ -34,7 +34,7 @@ export default function EditLapanganPage() {
     facilities: [] as string[],
     startTime: "08:00",
     endTime: "22:00",
-    status: "available" as "available" | "unavailable" | "maintenance",
+    status: "available" as CourtStatus,
   });
 
   const [facilityInput, setFacilityInput] = useState("");

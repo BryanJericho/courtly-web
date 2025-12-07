@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
 import { getTokoByPenjaga, getCourtsByToko, getTokoBookings, updateBooking, getCourt, deleteCourt } from "../../lib/firestore";
 import type { Toko, Court, Booking } from "../../lib/types";
+import { Timestamp } from "firebase/firestore";
 import RoleGuard from "../../components/RoleGuard";
 import Header from "../../components/Header";
 import Link from "next/link";
@@ -40,10 +41,10 @@ export default function PenjagaDashboard() {
           const bookingsData = await getTokoBookings(tokoData.id);
 
           // Fetch court data for each booking
-          const bookingsWithCourts = await Promise.all(
+          const bookingsWithCourts: BookingWithCourt[] = await Promise.all(
             bookingsData.map(async (booking) => {
               const court = await getCourt(booking.courtId);
-              return { ...booking, court };
+              return { ...booking, court } as BookingWithCourt;
             })
           );
 
@@ -511,7 +512,11 @@ export default function PenjagaDashboard() {
                                     📅 Tanggal
                                   </p>
                                   <p className="text-base font-bold text-gray-900">
-                                    {new Date(booking.date).toLocaleDateString("id-ID", {
+                                    {new Date(
+                                      booking.bookingDate instanceof Timestamp 
+                                        ? booking.bookingDate.toDate() 
+                                        : booking.bookingDate
+                                    ).toLocaleDateString("id-ID", {
                                       weekday: "short",
                                       year: "numeric",
                                       month: "short",
@@ -526,10 +531,7 @@ export default function PenjagaDashboard() {
                                     🕐 Waktu
                                   </p>
                                   <p className="text-base font-bold text-gray-900">
-                                    {booking.startTime} - {calculateEndTime(booking.startTime, booking.duration)}
-                                  </p>
-                                  <p className="text-xs text-gray-700">
-                                    ({booking.duration} jam)
+                                    {booking.timeSlot.start} - {booking.timeSlot.end}
                                   </p>
                                 </div>
 

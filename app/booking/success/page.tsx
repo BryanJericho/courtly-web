@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getBooking, getCourt } from "../../lib/firestore";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import Header from "../../components/Header";
 import Link from "next/link";
 import type { Booking, Court } from "../../lib/types";
+import { Timestamp } from "firebase/firestore";
 
-export default function BookingSuccessPage() {
+function BookingSuccessContent() {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("bookingId");
 
@@ -144,7 +145,11 @@ export default function BookingSuccessPage() {
                           Tanggal
                         </p>
                         <p className="text-base font-bold text-gray-900">
-                          {new Date(booking.date).toLocaleDateString("id-ID", {
+                          {new Date(
+                            booking.bookingDate instanceof Timestamp 
+                              ? booking.bookingDate.toDate() 
+                              : booking.bookingDate
+                          ).toLocaleDateString("id-ID", {
                             weekday: "long",
                             year: "numeric",
                             month: "long",
@@ -157,11 +162,7 @@ export default function BookingSuccessPage() {
                           Waktu
                         </p>
                         <p className="text-base font-bold text-gray-900">
-                          {booking.startTime} -{" "}
-                          {calculateEndTime(booking.startTime, booking.duration)}
-                        </p>
-                        <p className="text-sm text-gray-700">
-                          ({booking.duration} jam)
+                          {booking.timeSlot.start} - {booking.timeSlot.end}
                         </p>
                       </div>
                     </div>
@@ -170,22 +171,14 @@ export default function BookingSuccessPage() {
                     <div className="pb-4 border-b">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm font-medium text-gray-700">
-                          Metode Pembayaran
-                        </span>
-                        <span className="text-base font-bold text-gray-900 capitalize">
-                          {booking.paymentMethod === "transfer"
-                            ? "Transfer Bank"
-                            : booking.paymentMethod === "ewallet"
-                            ? "E-Wallet"
-                            : "Kartu Kredit/Debit"}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-gray-700">
                           Status Pembayaran
                         </span>
-                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                          Lunas
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          booking.paymentStatus === 'paid' 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {booking.paymentStatus === 'paid' ? 'Lunas' : 'Menunggu Pembayaran'}
                         </span>
                       </div>
                     </div>
@@ -231,5 +224,20 @@ export default function BookingSuccessPage() {
         </div>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function BookingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+          <p className="mt-4 text-gray-600">Memuat...</p>
+        </div>
+      </div>
+    }>
+      <BookingSuccessContent />
+    </Suspense>
   );
 }

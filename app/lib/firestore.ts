@@ -496,10 +496,8 @@ export const checkBookingConflict = async (
     // Check if any existing booking conflicts with the requested time
     for (const doc of querySnapshot.docs) {
       const booking = doc.data() as Booking;
-      const [existStartHours, existStartMinutes] = booking.startTime
-        .split(":")
-        .map(Number);
-      const existEndHours = existStartHours + booking.duration;
+      const [existStartHours] = booking.timeSlot.start.split(":").map(Number);
+      const [existEndHours] = booking.timeSlot.end.split(":").map(Number);
 
       // Check for overlap
       // Conflict if: (reqStart < existEnd) AND (reqEnd > existStart)
