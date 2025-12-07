@@ -3,12 +3,15 @@
 
 import Link from "next/link";
 import { plusJakartSans } from "../lib/font";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../lib/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../src/firebaseConfig";
 import { useRouter } from "next/navigation";
 import { FaSearch } from "react-icons/fa";
+import { getAllCourts } from "../lib/firestore";
+import type { Court } from "../lib/types";
+import Image from "next/image";
 
 // Konstanta untuk warna gradien
 const GRADIENT_FROM = "#66C05A";
@@ -19,6 +22,55 @@ const Header: React.FC = () => {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Court[]>([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Handle search query changes with debounce
+  useEffect(() => {
+    const searchCourts = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        setShowSearchDropdown(false);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const allCourts = await getAllCourts();
+        const filtered = allCourts.filter((court) => {
+          const query = searchQuery.toLowerCase();
+          return (
+            court.name.toLowerCase().includes(query) ||
+            court.sport.toLowerCase().includes(query) ||
+            court.location?.toLowerCase().includes(query)
+          );
+        });
+        setSearchResults(filtered.slice(0, 5)); // Limit to 5 results
+        setShowSearchDropdown(filtered.length > 0);
+      } catch (error) {
+        console.error("Error searching courts:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const timeoutId = setTimeout(searchCourts, 300); // Debounce 300ms
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -101,17 +153,84 @@ const Header: React.FC = () => {
         {/* Spacer to push search and profile to the right */}
         <div className="flex-1"></div>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 mr-3">
-          <FaSearch className="text-gray-500 mr-2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari lapangan..."
-            className="bg-transparent outline-none text-gray-700 placeholder-gray-500 w-48"
-          />
-        </form>
+        {/* Search Bar with Autocomplete */}
+        <div ref={searchRef} className="hidden md:block relative mr-3">
+          <form onSubmit={handleSearch} className="flex items-center bg-gray-100 rounded-full px-4 py-2">
+            <FaSearch className="text-gray-500 mr-2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => searchResults.length > 0 && setShowSearchDropdown(true)}
+              placeholder="Cari lapangan..."
+              className="bg-transparent outline-none text-gray-700 placeholder-gray-500 w-48"
+            />
+          </form>
+
+          {/* Search Dropdown */}
+          {showSearchDropdown && (
+            <div className="absolute top-full mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 max-h-96 overflow-y-auto z-50">
+              {isSearching ? (
+                <div className="p-4 text-center text-gray-500">
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-green-600"></div>
+                  <p className="mt-2 text-sm">Mencari...</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="py-2">
+                  {searchResults.map((court) => (
+                    <Link
+                      key={court.id}
+                      href={`/detail/${court.id}`}
+                      onClick={() => {
+                        setShowSearchDropdown(false);
+                        setSearchQuery("");
+                      }}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition"
+                    >
+                      {/* Court Image */}
+                      <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200">
+                        {court.images && court.images.length > 0 ? (
+                          <Image
+                            src={court.images[0]}
+                            alt={court.name}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <FaSearch />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Court Info */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-gray-900 truncate">
+                          {court.name}
+                        </h4>
+                        <p className="text-xs text-gray-600 capitalize">
+                          {court.sport} • {court.environment}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {court.location}
+                        </p>
+                      </div>
+
+                      {/* Price */}
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold text-green-600">
+                          Rp {new Intl.NumberFormat("id-ID").format(court.price)}
+                        </p>
+                        <p className="text-xs text-gray-500">/jam</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
 
         {/* Kontainer Kanan: Auth Buttons atau Profile Menu */}
         <div className="flex space-x-3 items-center">
