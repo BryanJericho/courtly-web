@@ -307,6 +307,52 @@ export default function CourtDetailPage() {
                 )}
               </div>
 
+              {/* Toko Info Card - Prominent */}
+              {toko && (
+                <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg shadow-md p-6 border-2 border-green-200">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-3xl">
+                      🏪
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600 mb-1">Dikelola oleh</p>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">{toko.name}</h2>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <span className="text-green-600">📍</span>
+                          <span className="font-medium">{toko.address}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <span className="text-green-600">🏙️</span>
+                          <span>{toko.location.city}, {toko.location.district}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <span className="text-green-600">📞</span>
+                          <span>{toko.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <span className="text-green-600">📧</span>
+                          <span>{toko.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <span className="text-green-600">🕐</span>
+                          <span className="font-semibold">
+                            Buka: {toko.operatingHours.open} - {toko.operatingHours.close}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {toko.description && (
+                    <div className="mt-4 pt-4 border-t border-green-200">
+                      <p className="text-sm text-gray-700">{toko.description}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Court Info */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -325,17 +371,6 @@ export default function CourtDetailPage() {
                   <span className="text-gray-400">•</span>
                   <span className="text-gray-800 capitalize font-medium">{court.environment}</span>
                 </div>
-
-                {/* Toko Info */}
-                {toko && (
-                  <div className="mb-4 pb-4 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-700">Dikelola oleh:</p>
-                    <p className="font-semibold text-lg text-gray-900">{toko.name}</p>
-                    <p className="text-sm text-gray-800 font-medium">
-                      📍 {toko.location.city}, {toko.location.district}
-                    </p>
-                  </div>
-                )}
 
                 {/* Quick Info */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
