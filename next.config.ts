@@ -3,14 +3,27 @@ const nextConfig = {
   // ... Pengaturan Next.js lainnya (jika ada)
 
   images: {
-    // 💡 Tambahkan hostname di sini.
-    // Hapus 'http://' atau 'https://' dan path setelah domain.
-    domains: [
-      'googleusercontent.com',
-      'images.unsplash.com',
-      'www.google.com',
-      'lh3.googleusercontent.com',
-      'res.cloudinary.com', // Cloudinary CDN
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
     ],
   },
 };

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(mkdir:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(npm i:*)"
     ],
     "deny": [],
     "ask": []
