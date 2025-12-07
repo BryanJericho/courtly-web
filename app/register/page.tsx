@@ -27,7 +27,7 @@ export default function RegisterPage() {
         phone: '',
         password: '',
         confirmPassword: '',
-        role: 'user', // Default role: user
+        role: 'user' as 'user' | 'penjaga_lapangan', // Default role: user, tapi bisa diubah
         agreedToTerms: false,
     });
     const [error, setError] = useState<string | null>(null);
@@ -67,6 +67,8 @@ export default function RegisterPage() {
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
+
+        console.log('Role yang dipilih:', formData.role); // Debug log
 
         // Validasi password
         const passwordValidation = validatePassword(formData.password);

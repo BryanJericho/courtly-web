@@ -9,6 +9,15 @@ export type UserRole = 'user' | 'penjaga_lapangan' | 'super_admin';
 // Sport types
 export type SportType = 'futsal' | 'basket' | 'tenis' | 'badminton' | 'voli';
 
+// Area types for Makassar
+export type AreaType = 
+  | 'panakkukang' 
+  | 'rappocini' 
+  | 'tamalanrea' 
+  | 'manggala' 
+  | 'makassar-tengah' 
+  | 'cpi-gowa';
+
 // Environment types
 export type EnvironmentType = 'indoor' | 'outdoor';
 
@@ -65,6 +74,7 @@ export interface Court {
   tokoId: string; // Reference to parent toko
   name: string;
   sport: SportType;
+  area: AreaType; // Area/zona lokasi lapangan
   description: string;
   price: number;
   images: string[];
@@ -153,6 +163,7 @@ export interface CreateCourtInput {
   tokoId: string;
   name: string;
   sport: SportType;
+  area: AreaType;
   description: string;
   price: number;
   images: string[];
@@ -185,6 +196,7 @@ export interface CreateBookingInput {
 // Filter interfaces for search
 export interface CourtFilters {
   sport?: SportType;
+  area?: AreaType;
   city?: string;
   district?: string;
   minPrice?: number;

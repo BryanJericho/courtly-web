@@ -256,7 +256,7 @@ export default function CourtDetailPage() {
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
-          <div className="mb-6 text-sm text-gray-600">
+          <div className="mt-6 mb-6 text-sm text-gray-600">
             <Link href="/" className="hover:text-green-600">
               Beranda
             </Link>

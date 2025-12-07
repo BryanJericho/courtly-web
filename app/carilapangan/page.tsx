@@ -8,10 +8,17 @@ import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useCourts } from "../hooks/useCourts";
-import type { Court, SportType, EnvironmentType } from "../lib/types";
+import type { Court, SportType, EnvironmentType, AreaType } from "../lib/types";
 
-const LOCATIONS = ["Jakarta", "Surabaya", "Bandung", "Makassar", "Medan"];
 const SPORTS: SportType[] = ["futsal", "basket", "tenis", "badminton"];
+const AREAS: { value: AreaType; label: string }[] = [
+  { value: "panakkukang", label: "Panakkukang & Sekitarnya" },
+  { value: "rappocini", label: "Rappocini & AP Pettarani" },
+  { value: "tamalanrea", label: "Tamalanrea & BTP" },
+  { value: "manggala", label: "Manggala & Antang" },
+  { value: "makassar-tengah", label: "Makassar Tengah & Mamajang" },
+  { value: "cpi-gowa", label: "CPI & Gowa" },
+];
 
 // CourtCard Component untuk halaman Cari Lapangan
 function CourtCardSearch({ court }: { court: Court }) {
@@ -95,10 +102,10 @@ export default function CariLapanganPage() {
   const sportFromUrl = searchParams.get("sport") as SportType | null;
   const searchFromUrl = searchParams.get("search") || "";
 
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedSport, setSelectedSport] = useState<SportType | null>(
     sportFromUrl
   );
+  const [selectedArea, setSelectedArea] = useState<AreaType | null>(null);
   const [selectedEnvironment, setSelectedEnvironment] =
     useState<EnvironmentType | null>(null);
   const [searchQuery, setSearchQuery] = useState(searchFromUrl);
@@ -106,7 +113,7 @@ export default function CariLapanganPage() {
   // Build filters for useCourts
   const filters = {
     sport: selectedSport || undefined,
-    city: selectedLocation || undefined,
+    area: selectedArea || undefined,
     environment: selectedEnvironment || undefined,
     status: "available" as const,
   };
@@ -131,6 +138,7 @@ export default function CariLapanganPage() {
   const basketCourts = filteredCourts.filter((c) => c.sport === "basket");
   const tenisCourts = filteredCourts.filter((c) => c.sport === "tenis");
   const badmintonCourts = filteredCourts.filter((c) => c.sport === "badminton");
+  const voliCourts = filteredCourts.filter((c) => c.sport === "voli");
 
   const handleApplyFilter = () => {
     // Filter already applied via useCourts dependency
@@ -180,27 +188,6 @@ export default function CariLapanganPage() {
                 <h3 className="font-bold text-xl mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
                   Filter Pencarian
                 </h3>
-                
-                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <span>📍</span> LOKASI
-                </h4>
-                <div className="space-y-2 mb-6">
-                  {LOCATIONS.map((loc) => (
-                    <label key={loc} className="flex items-center cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={selectedLocation === loc}
-                        onChange={() =>
-                          setSelectedLocation(
-                            selectedLocation === loc ? null : loc
-                          )
-                        }
-                        className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{loc}</span>
-                    </label>
-                  ))}
-                </div>
 
                 <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   <span>⚽</span> JENIS OLAHRAGA
@@ -218,6 +205,27 @@ export default function CariLapanganPage() {
                       />
                       <span className="ml-2 text-sm text-gray-700 capitalize group-hover:text-green-600 transition-colors">
                         {sport}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <span>📍</span> AREA MAKASSAR
+                </h4>
+                <div className="space-y-2 mb-6">
+                  {AREAS.map((area) => (
+                    <label key={area.value} className="flex items-center cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedArea === area.value}
+                        onChange={() =>
+                          setSelectedArea(selectedArea === area.value ? null : area.value)
+                        }
+                        className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700 group-hover:text-green-600 transition-colors">
+                        {area.label}
                       </span>
                     </label>
                   ))}

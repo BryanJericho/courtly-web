@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../../../lib/AuthContext";
 import { getCourt, updateCourt } from "../../../../lib/firestore";
-import type { Court, SportType, EnvironmentType } from "../../../../lib/types";
+import type { Court, SportType, EnvironmentType, AreaType } from "../../../../lib/types";
 import RoleGuard from "../../../../components/RoleGuard";
 import Header from "../../../../components/Header";
 import Link from "next/link";
@@ -24,6 +24,7 @@ export default function EditLapanganPage() {
   const [formData, setFormData] = useState({
     name: "",
     sport: "" as SportType,
+    area: "" as AreaType,
     description: "",
     location: "",
     price: "",
@@ -52,6 +53,7 @@ export default function EditLapanganPage() {
         setFormData({
           name: courtData.name,
           sport: courtData.sport,
+          area: courtData.area || "" as AreaType,
           description: courtData.description,
           location: courtData.location || "",
           price: courtData.price.toString(),
@@ -111,6 +113,7 @@ export default function EditLapanganPage() {
       const updateData = {
         name: formData.name,
         sport: formData.sport,
+        area: formData.area,
         description: formData.description,
         location: formData.location,
         price: parseInt(formData.price),
@@ -241,6 +244,30 @@ export default function EditLapanganPage() {
                           <option value="outdoor">Outdoor</option>
                         </select>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Area Lokasi *
+                      </label>
+                      <select
+                        name="area"
+                        value={formData.area}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                      >
+                        <option value="">Pilih Area</option>
+                        <option value="panakkukang">📍 Panakkukang & Sekitarnya</option>
+                        <option value="rappocini">📍 Rappocini & AP Pettarani</option>
+                        <option value="tamalanrea">📍 Tamalanrea & BTP</option>
+                        <option value="manggala">📍 Manggala & Antang</option>
+                        <option value="makassar-tengah">📍 Makassar Tengah & Mamajang</option>
+                        <option value="cpi-gowa">📍 CPI & Gowa</option>
+                      </select>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Pilih zona area yang paling dekat dengan lokasi lapangan
+                      </p>
                     </div>
 
                     <div>

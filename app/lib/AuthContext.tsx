@@ -50,11 +50,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (firebaseUser) {
         try {
-          // Fetch user data from Firestore
-          const userData = await getUser(firebaseUser.uid);
+          // Fetch user data from Firestore with retry logic for new users
+          let userData = await getUser(firebaseUser.uid);
+          
+          // Retry up to 3 times with delay if user data not found (for newly registered users)
+          if (!userData) {
+            for (let i = 0; i < 3; i++) {
+              await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
+              userData = await getUser(firebaseUser.uid);
+              if (userData) break;
+            }
+          }
 
           if (!userData) {
-            // If user data not found in Firestore, create minimal user object
+            // If user data still not found after retries, create minimal user object
             console.warn("User data not found in Firestore for UID:", firebaseUser.uid);
             setUser({
               uid: firebaseUser.uid,

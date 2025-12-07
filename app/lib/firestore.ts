@@ -300,6 +300,9 @@ export const getAllCourts = async (filters?: CourtFilters): Promise<Court[]> => 
     })) as Court[];
 
     // Client-side filtering for other criteria
+    if (filters?.area) {
+      courts = courts.filter((court) => court.area === filters.area);
+    }
     if (filters?.environment) {
       courts = courts.filter((court) => court.environment === filters.environment);
     }

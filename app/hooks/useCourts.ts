@@ -28,7 +28,7 @@ export const useCourts = (filters?: CourtFilters) => {
 
     fetchCourts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters?.sport, filters?.status, filters?.tokoId, filters?.environment]);
+  }, [filters?.sport, filters?.status, filters?.tokoId, filters?.environment, filters?.area]);
 
   return { courts, loading, error, refetch: () => {} };
 };
