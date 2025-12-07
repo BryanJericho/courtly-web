@@ -25,7 +25,7 @@ const CourtCard: React.FC<CourtCardProps> = ({ court }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden min-w-[280px] max-w-xs transition hover:shadow-xl">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden w-[280px] flex-shrink-0 transition hover:shadow-xl">
       <div className="h-32 bg-gray-200 relative">
         <Image
           src={court.images[0] || "/images/default-court.png"}

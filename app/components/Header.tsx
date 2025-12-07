@@ -179,7 +179,7 @@ const Header: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => searchResults.length > 0 && setShowSearchDropdown(true)}
-              placeholder="Cari lapangan..."
+              placeholder="Mau main apa hari ini?"
               className="bg-transparent outline-none text-gray-700 placeholder-gray-500 w-48"
             />
           </form>
