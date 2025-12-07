@@ -1,11 +1,12 @@
 // components/FeaturedCourts.tsx
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import CourtCard from "./CourtCard";
 import type { SportType } from "../lib/types";
 import { useCourts } from "../hooks/useCourts";
 import Link from "next/link";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 interface FeaturedCourtsProps {
   title: string;
@@ -13,11 +14,28 @@ interface FeaturedCourtsProps {
 }
 
 const FeaturedCourts: React.FC<FeaturedCourtsProps> = ({ title, sport }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
   // Fetch courts from Firestore with sport filter
   const { courts, loading, error } = useCourts({ sport, status: "available" });
 
   // Limit to first 6 courts untuk homepage
   const featuredCourts = courts.slice(0, 6);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 300;
+      const newScrollPosition =
+        direction === "left"
+          ? scrollContainerRef.current.scrollLeft - scrollAmount
+          : scrollContainerRef.current.scrollLeft + scrollAmount;
+
+      scrollContainerRef.current.scrollTo({
+        left: newScrollPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -75,11 +93,36 @@ const FeaturedCourts: React.FC<FeaturedCourtsProps> = ({ title, sport }) => {
         </Link>
       </div>
 
-      {/* Area untuk Carousel/Scrollable Courts */}
-      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-        {featuredCourts.map((court) => (
-          <CourtCard key={court.id} court={court} />
-        ))}
+      {/* Carousel dengan Navigation Arrows */}
+      <div className="relative group">
+        {/* Left Arrow */}
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -ml-4"
+          aria-label="Scroll left"
+        >
+          <FaChevronLeft className="text-gray-800 w-5 h-5" />
+        </button>
+
+        {/* Courts Container */}
+        <div
+          ref={scrollContainerRef}
+          className="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {featuredCourts.map((court) => (
+            <CourtCard key={court.id} court={court} />
+          ))}
+        </div>
+
+        {/* Right Arrow */}
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -mr-4"
+          aria-label="Scroll right"
+        >
+          <FaChevronRight className="text-gray-800 w-5 h-5" />
+        </button>
       </div>
     </section>
   );
