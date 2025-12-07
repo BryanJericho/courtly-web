@@ -105,14 +105,17 @@ export default function BookingConfirmPage() {
       }
 
       // Create booking in Firestore
+      const endTime = `${(parseInt(time!.split(':')[0]) + parseInt(duration!)).toString().padStart(2, '0')}:00`;
+      
       const bookingId = await createBooking(user.uid, {
         courtId,
         tokoId: court.tokoId,
-        date,
-        startTime: time,
-        duration: parseInt(duration),
+        bookingDate: date!,
+        timeSlot: {
+          start: time!,
+          end: endTime,
+        },
         totalPrice: calculateTotal(),
-        paymentMethod,
       });
 
       // Redirect to success page
