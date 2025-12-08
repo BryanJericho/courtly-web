@@ -9,7 +9,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 // 💡 Tambah fungsi Google Auth dan getDoc untuk cek Firestore
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, signOut } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore'; 
 
 import { auth, db } from '../../src/firebaseConfig'; 
@@ -114,9 +114,12 @@ export default function RegisterPage() {
             console.log('Pendaftaran berhasil!', user.uid);
             setSuccessMessage(true);
 
-            // Redirect ke homepage setelah registrasi
+            // Logout setelah registrasi agar user harus login kembali setelah verifikasi
+            await auth.signOut();
+
+            // Redirect ke login page setelah registrasi
             setTimeout(() => {
-                router.push('/');
+                router.push('/login');
             }, 3000);
 
         } catch (err: any) {
@@ -345,7 +348,7 @@ export default function RegisterPage() {
                             {successMessage && (
                                 <div className="p-3 rounded-md bg-green-50 border border-green-200">
                                     <p className="text-sm font-medium text-green-800">✓ Pendaftaran berhasil!</p>
-                                    <p className="text-xs text-green-700 mt-1">Silakan cek email Anda untuk verifikasi. Setelah verifikasi, Anda bisa login.</p>
+                                    <p className="text-xs text-green-700 mt-1">Silakan cek email Anda untuk verifikasi. Setelah verifikasi, silakan login kembali. Anda akan diarahkan ke halaman login...</p>
                                 </div>
                             )}
 
