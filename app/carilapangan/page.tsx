@@ -17,7 +17,7 @@ const AREAS: { value: AreaType; label: string }[] = [
   { value: "tamalanrea", label: "Tamalanrea & BTP" },
   { value: "manggala", label: "Manggala & Antang" },
   { value: "makassar-tengah", label: "Makassar Tengah & Mamajang" },
-  { value: "cpi-gowa", label: "CPI & Gowa" },
+  { value: "cpi-gowa", label: "CPI & Tanjung Bunga" },
 ];
 
 // CourtCard Component untuk halaman Cari Lapangan
