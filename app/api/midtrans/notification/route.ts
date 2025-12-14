@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import midtransClient from 'midtrans-client';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../src/firebaseConfig';
 
@@ -7,18 +6,12 @@ export async function POST(request: NextRequest) {
   try {
     const notification = await request.json();
     
-    // Verify notification authenticity
-    const core = new midtransClient.CoreApi({
-      isProduction: process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true',
-      serverKey: process.env.MIDTRANS_SERVER_KEY!,
-      clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!,
-    });
-
-    const statusResponse = await core.transaction.notification(notification);
-    
-    const orderId = statusResponse.order_id;
-    const transactionStatus = statusResponse.transaction_status;
-    const fraudStatus = statusResponse.fraud_status;
+    // Extract transaction data from notification
+    const orderId = notification.order_id;
+    const transactionStatus = notification.transaction_status;
+    const fraudStatus = notification.fraud_status;
+    const transactionId = notification.transaction_id;
+    const paymentType = notification.payment_type;
 
     console.log(`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`);
 
@@ -48,8 +41,8 @@ export async function POST(request: NextRequest) {
     await updateDoc(bookingRef, {
       status: bookingStatus,
       paymentStatus: paymentStatus,
-      transactionId: statusResponse.transaction_id,
-      paymentType: statusResponse.payment_type,
+      transactionId: transactionId,
+      paymentType: paymentType,
       updatedAt: new Date().toISOString(),
     });
 
