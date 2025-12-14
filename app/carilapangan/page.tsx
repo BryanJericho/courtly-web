@@ -36,7 +36,8 @@ function CourtCardSearch({ court }: { court: Court }) {
   };
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
+    <Link href={`/detail/${court.id}`} className="block">
+      <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer">
       {/* Image */}
       <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
         <Image
@@ -78,22 +79,16 @@ function CourtCardSearch({ court }: { court: Court }) {
           </div>
         </div>
 
-        {/* Price & Button */}
-        <div className="flex justify-between items-end pt-3 border-t border-gray-100">
-          <div>
-            <p className="text-xs text-gray-500">Mulai dari</p>
-            <p className="text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              Rp {formattedPrice}
-            </p>
-          </div>
-          <Link href={`/detail/${court.id}`}>
-            <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:from-green-600 hover:to-blue-600 transition-all duration-300 shadow-md hover:shadow-lg">
-              Lihat Detail
-            </button>
-          </Link>
+        {/* Price */}
+        <div className="pt-3 border-t border-gray-100">
+          <p className="text-xs text-gray-500">Mulai dari</p>
+          <p className="text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            Rp {formattedPrice}
+          </p>
         </div>
       </div>
     </div>
+    </Link>
   );
 }
 

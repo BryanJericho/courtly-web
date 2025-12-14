@@ -25,8 +25,9 @@ const CourtCard: React.FC<CourtCardProps> = ({ court }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden w-[280px] flex-shrink-0 transition hover:shadow-xl">
-      <div className="h-32 bg-gray-200 relative">
+    <Link href={`/detail/${court.id}`} className="block">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden w-[280px] flex-shrink-0 transition hover:shadow-xl cursor-pointer">
+        <div className="h-32 bg-gray-200 relative">
         <Image
           src={court.images[0] || "/images/default-court.png"}
           alt={court.name}
@@ -64,11 +65,6 @@ const CourtCard: React.FC<CourtCardProps> = ({ court }) => {
             </p>
             <p className="text-xs text-gray-400">/ jam</p>
           </div>
-          <Link href={`/detail/${court.id}`}>
-            <button className="px-3 py-1 bg-green-100 text-green-600 text-xs font-medium rounded-full hover:bg-green-200 transition">
-              Lihat Detail
-            </button>
-          </Link>
         </div>
 
         <div className="flex space-x-2 text-xs">
@@ -86,6 +82,7 @@ const CourtCard: React.FC<CourtCardProps> = ({ court }) => {
         </div>
       </div>
     </div>
+    </Link>
   );
 };
 
