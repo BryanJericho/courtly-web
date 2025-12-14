@@ -85,26 +85,7 @@ function BookingConfirmContent() {
         return;
       }
 
-      // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Double-check for conflict right before creating booking (race condition prevention)
-      const hasConflictAgain = await checkBookingConflict(
-        courtId,
-        date,
-        time,
-        parseInt(duration)
-      );
-
-      if (hasConflictAgain) {
-        setError(
-          "Maaf, waktu yang Anda pilih baru saja dibooking oleh pengguna lain. Silakan kembali dan pilih waktu yang berbeda."
-        );
-        setProcessing(false);
-        return;
-      }
-
-      // Create booking in Firestore
+      // Create booking first with pending payment status
       const endTime = `${(parseInt(time!.split(':')[0]) + parseInt(duration!)).toString().padStart(2, '0')}:00`;
       
       const bookingId = await createBooking(user.uid, {
@@ -118,12 +99,84 @@ function BookingConfirmContent() {
         totalPrice: calculateTotal(),
       });
 
-      // Redirect to success page
-      router.push(`/booking/success?bookingId=${bookingId}`);
+      // Create Midtrans payment
+      const response = await fetch('/api/midtrans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: bookingId,
+          grossAmount: calculateTotal(),
+          customerDetails: {
+            first_name: user.firstName || 'User',
+            last_name: user.lastName || '',
+            email: user.email,
+            phone: user.phone || '08123456789',
+          },
+          itemDetails: [{
+            id: courtId,
+            price: court.price,
+            quantity: parseInt(duration),
+            name: `${court.name} - ${duration} jam`,
+          }],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create payment');
+      }
+
+      // Load Midtrans Snap script
+      const clientKey = 'Mid-client-70q49MI6cX7wLccu'; // Sandbox client key
+      const script = document.createElement('script');
+      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+      script.setAttribute('data-client-key', clientKey);
+      document.body.appendChild(script);
+
+      script.onload = () => {
+        // @ts-ignore
+        window.snap.pay(data.token, {
+          onSuccess: function(result: any) {
+            console.log('Payment success:', result);
+            router.push(`/booking/success?bookingId=${bookingId}`);
+          },
+          onPending: function(result: any) {
+            console.log('Payment pending:', result);
+            
+            // Auto-approve untuk sandbox setelah 3 detik (simulasi)
+            if (process.env.NODE_ENV === 'development') {
+              setTimeout(async () => {
+                try {
+                  await fetch('/api/midtrans/simulate-approve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: bookingId }),
+                  });
+                  console.log('Auto-approved payment in sandbox mode');
+                } catch (err) {
+                  console.error('Failed to auto-approve:', err);
+                }
+              }, 3000);
+            }
+            
+            router.push(`/booking/success?bookingId=${bookingId}`);
+          },
+          onError: function(result: any) {
+            console.log('Payment error:', result);
+            setError('Pembayaran gagal. Silakan coba lagi.');
+            setProcessing(false);
+          },
+          onClose: function() {
+            console.log('Payment popup closed');
+            setError('Pembayaran dibatalkan');
+            setProcessing(false);
+          }
+        });
+      };
     } catch (err: any) {
       console.error("Error processing payment:", err);
       setError("Gagal memproses pembayaran. Silakan coba lagi.");
-    } finally {
       setProcessing(false);
     }
   };

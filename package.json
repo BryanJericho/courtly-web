@@ -13,6 +13,7 @@
     "cloudinary": "^2.8.0",
     "firebase": "^12.6.0",
     "lucide-react": "^0.555.0",
+    "midtrans-client": "^1.4.3",
     "next": "^16.0.7",
     "next-cloudinary": "^6.17.5",
     "react": "19.2.0",
