@@ -35,6 +35,7 @@ export default function EditLapanganPage() {
     startTime: "08:00",
     endTime: "22:00",
     status: "available" as CourtStatus,
+    mapsUrl: "",
   });
 
   const [facilityInput, setFacilityInput] = useState("");
@@ -64,6 +65,7 @@ export default function EditLapanganPage() {
           startTime: courtData.availability.startTime,
           endTime: courtData.availability.endTime,
           status: courtData.status || "available",
+          mapsUrl: courtData.mapsUrl || "",
         });
       } catch (err) {
         console.error("Error fetching court:", err);
@@ -126,6 +128,7 @@ export default function EditLapanganPage() {
           endTime: formData.endTime,
         },
         status: formData.status,
+        mapsUrl: formData.mapsUrl || undefined,
       };
 
       await updateCourt(courtId, updateData);
@@ -301,6 +304,29 @@ export default function EditLapanganPage() {
                       <p className="mt-1 text-xs text-gray-500">
                         Masukkan nama jalan atau daerah lokasi lapangan
                       </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Link Google Maps (Opsional)
+                      </label>
+                      <input
+                        type="url"
+                        name="mapsUrl"
+                        value={formData.mapsUrl}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                        placeholder="https://www.google.com/maps/@-5.147,119.432..."
+                      />
+                      <div className="mt-1 text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">
+                        <p className="font-semibold mb-1">📍 Cara mendapatkan link:</p>
+                        <ol className="list-decimal list-inside space-y-0.5">
+                          <li>Buka Google Maps di browser (bukan aplikasi)</li>
+                          <li>Cari dan klik lokasi lapangan</li>
+                          <li>Copy URL dari address bar browser (bukan tombol Share)</li>
+                          <li>Pastikan URL mengandung koordinat seperti @-5.147,119.432</li>
+                        </ol>
+                      </div>
                     </div>
                   </div>
                 </div>

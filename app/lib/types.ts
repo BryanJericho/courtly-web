@@ -90,6 +90,7 @@ export interface Court {
   status: CourtStatus;
   createdAt: Timestamp | Date | string;
   updatedAt: Timestamp | Date | string;
+  mapsUrl?: string; // Google Maps URL
 
   // Computed fields (not in Firestore, added in frontend)
   tokoName?: string;

@@ -13,6 +13,34 @@ import type { Court, Toko, Review } from "../../lib/types";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../src/firebaseConfig";
 
+// Helper function to extract coordinates from Google Maps URL
+const extractCoordinates = (url: string): { lat: number; lng: number } | null => {
+  try {
+    // Match coordinates from various Google Maps URL formats
+    // Format: @-5.123456,119.789012
+    const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (coordMatch) {
+      return {
+        lat: parseFloat(coordMatch[1]),
+        lng: parseFloat(coordMatch[2])
+      };
+    }
+    
+    // Format: ?q=-5.123456,119.789012
+    const qMatch = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (qMatch) {
+      return {
+        lat: parseFloat(qMatch[1]),
+        lng: parseFloat(qMatch[2])
+      };
+    }
+    
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export default function CourtDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -403,7 +431,7 @@ export default function CourtDetailPage() {
                 </div>
 
                 {/* Facilities */}
-                <div>
+                <div className="mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-3">
                     Fasilitas
                   </h2>
@@ -418,6 +446,55 @@ export default function CourtDetailPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Google Maps */}
+                {court.mapsUrl && (() => {
+                  const coords = extractCoordinates(court.mapsUrl);
+                  return (
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-3">
+                        📍 Lokasi
+                      </h2>
+                      {coords ? (
+                        <div className="rounded-lg overflow-hidden border-2 border-gray-200 shadow-md mb-3">
+                          <iframe
+                            src={`https://maps.google.com/maps?q=${coords.lat},${coords.lng}&hl=id&z=15&output=embed`}
+                            width="100%"
+                            height="300"
+                            style={{ border: 0 }}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Lokasi Lapangan"
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200 rounded-lg mb-3">
+                          <div className="flex items-start gap-3">
+                            <span className="text-3xl">📍</span>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900 mb-1">
+                                Lokasi Tersedia
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                Klik tombol di bawah untuk melihat lokasi lengkap di Google Maps
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <a
+                        href={court.mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-green-500 text-green-600 rounded-lg font-medium hover:bg-green-50 transition-all duration-300"
+                      >
+                        <span>🗺️</span>
+                        <span>Buka di Google Maps</span>
+                      </a>
+                    </div>
+                  );
+                })()}
               </div>
 
             </div>
