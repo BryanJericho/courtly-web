@@ -106,6 +106,29 @@ export default function PenjagaDashboard() {
     }
   };
 
+  const handleCompleteBooking = async (bookingId: string) => {
+    if (!confirm("Apakah permainan sudah selesai?")) return;
+
+    try {
+      setProcessingBookingId(bookingId);
+      await updateBooking(bookingId, { status: "completed" });
+
+      // Update local state
+      setBookings(
+        bookings.map((booking) =>
+          booking.id === bookingId ? { ...booking, status: "completed" } : booking
+        )
+      );
+
+      alert("Booking berhasil ditandai selesai!");
+    } catch (error) {
+      console.error("Error completing booking:", error);
+      alert("Gagal menandai booking selesai. Silakan coba lagi.");
+    } finally {
+      setProcessingBookingId(null);
+    }
+  };
+
   const getTokoStatusBadge = (status: string) => {
     const badges: Record<string, { bg: string; text: string; label: string }> = {
       active: { bg: "bg-green-100", text: "text-green-700", label: "Aktif" },
@@ -571,6 +594,21 @@ export default function PenjagaDashboard() {
                                     {processingBookingId === booking.id
                                       ? "Memproses..."
                                       : "✕ Tolak"}
+                                  </button>
+                                </div>
+                              )}
+                              
+                              {/* Actions untuk booking confirmed - penjaga bisa tandai selesai */}
+                              {booking.status === "confirmed" && (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleCompleteBooking(booking.id!)}
+                                    disabled={processingBookingId === booking.id}
+                                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {processingBookingId === booking.id
+                                      ? "Memproses..."
+                                      : "✓ Tandai Selesai"}
                                   </button>
                                 </div>
                               )}

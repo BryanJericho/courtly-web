@@ -357,10 +357,8 @@ export default function BookingsPage() {
                             Lihat Lapangan
                           </Link>
                           
-                          {/* Tombol Selesai Bermain - untuk booking yang confirmed */}
-                          {booking.status === "confirmed" &&
-                            booking.date &&
-                            !isPastBooking(booking.date) && (
+                          {/* Tombol Selesai Bermain - untuk booking yang confirmed DAN sudah/sedang hari H */}
+                          {booking.status === "confirmed" && (
                               <>
                                 <button
                                   className="px-4 py-2 bg-green-50 text-green-700 font-medium rounded-lg hover:bg-green-100 transition text-sm"
@@ -369,7 +367,7 @@ export default function BookingsPage() {
                                 >
                                   {completingBookingId === booking.id
                                     ? "Memproses..."
-                                    : "Selesai Bermain"}
+                                    : "✓ Selesai Bermain"}
                                 </button>
                                 <button
                                   className="px-4 py-2 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition text-sm"
